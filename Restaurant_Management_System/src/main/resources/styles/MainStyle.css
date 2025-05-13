@@ -1,0 +1,31 @@
+.root {
+    -fx-background-color: #36454F; /* Графітовий колір */
+}
+
+.button {
+    -fx-background-color: #f0f0f0; /* Світло-сірий колір кнопок за замовчуванням */
+    -fx-text-fill: black;
+    -fx-font-size: 16px;
+    -fx-pref-width: 250px;
+    -fx-pref-height: 60px;
+    -fx-cursor: hand; /* Змінює курсор при наведенні */
+}
+
+.button:hover {
+    -fx-background-color: #FF69B4; /* Рожева підсвітка при наведенні */
+    -fx-text-fill: white;
+}
+
+.label {
+    -fx-text-fill: white;
+}
+
+.title-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.bottom-label {
+    -fx-text-fill: #cccccc; /* Світло-сірий для нижнього лейбла */
+    -fx-font-size: 12px;
+}

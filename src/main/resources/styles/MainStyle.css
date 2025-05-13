@@ -1,0 +1,90 @@
+/* ===== Загальні стилі ===== */
+.root {
+    -fx-background-color: #20181c; /* Дуже темний графіт */
+    -fx-font-family: "Segoe UI", "Roboto", "Raleway", sans-serif;
+    -fx-alignment: center;
+}
+
+.label {
+    -fx-text-fill: white;
+}
+
+.title-label {
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 25px;
+    -fx-background-radius: 20px;
+    -fx-background-color: #000000;
+    -fx-pref-width: 220px;
+    -fx-pref-height: 80px;
+    -fx-alignment: center;
+    -fx-border-color: #fb64a4;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-padding: 10px;
+    -fx-text-fill: #fb64a4;
+    -fx-effect: dropshadow(gaussian, #000000, 18, 0.7, 0, 0);
+    -fx-translate-y: 20px; /* Це створює візуальний відступ зверху */}
+
+/* ===== Кнопки ===== */
+
+/* Основні великі кнопки */
+.button {
+    -fx-background-color: #fb64a4;
+    -fx-text-fill: #000000;
+    -fx-font-size: 16px;
+    -fx-pref-width: 250px;
+    -fx-pref-height: 60px;
+    -fx-cursor: hand;
+    -fx-background-radius: 10px;
+    -fx-border-color: #181a20;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-effect: dropshadow(gaussian, #fb64a4, 15, 0.8, 0, 0); /* Неонова підсвітка */
+    -fx-transition: all 0.3s ease;
+}
+
+.button:hover {
+    -fx-background-color: #000000;
+    -fx-border-color: #fb64a4;
+    -fx-text-fill: #fb64a4;
+    -fx-effect: dropshadow(gaussian, #000000, 15, 0.8, 0, 0); /* Неонова підсвітка */
+}
+
+/* Кнопки входу/виходу */
+.top-button {
+    -fx-pref-width: 80px;
+    -fx-pref-height: 20px;
+    -fx-background-color: #fb64a4;
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(gaussian,  #fb64a4, 15, 0.8, 0, 0);
+}
+
+/* ===== Розміщення ===== */
+.top-right-buttons {
+    -fx-alignment: CENTER_RIGHT;
+    -fx-spacing: 10px;
+}
+
+/* ===== Додаткові лейбли ===== */
+.bottom-label {
+    -fx-text-fill: #999999;
+    -fx-font-size: 12px;
+}
+
+.username-label {
+    -fx-text-fill: #fb64a4;
+    -fx-font-size: 14px;
+
+    -fx-background-radius: 14px;
+    -fx-background-color: #000000;
+    -fx-pref-width: 130px; /* було 110px — стало ширше */
+    -fx-pref-height: 25px; /* було 1px — стало виразне, але низьке */
+    -fx-border-color: #fb64a4;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-padding: 5px 10px;
+
+    -fx-font-weight: bold; /* було з помилкою: fx-font-weight */
+}
