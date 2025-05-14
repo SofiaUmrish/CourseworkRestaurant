@@ -1,9 +1,9 @@
 package org.example.restaurant_management_system.controller;
 
+import org.example.restaurant_management_system.model.Role;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -13,121 +13,159 @@ import java.io.IOException;
 
 public class MainController {
 
-    @FXML
-    private Button ordersButton;
+    @FXML private Button ordersButton;
+    @FXML private Button kitchenButton;
+    @FXML private Button inventoryButton;
+    @FXML private Button reportingButton;
+    @FXML private Button menuButton;
+    @FXML private Button loginTopButton;
+    @FXML private Button logoutTopButton;
+    @FXML private Label usernameLabel;
 
-    @FXML
-    private Button kitchenButton;
+    private Role userRole;
 
+    // ініціалізація — кнопки неактивні, користувач неавторизований
     @FXML
-    private Button inventoryButton;
+    private void initialize() {
+        usernameLabel.setVisible(false);
+        logoutTopButton.setVisible(false);
 
-    @FXML
-    private Button reportingButton;
-
-    @FXML
-    private Button menuButton;
-
-    @FXML
-    private Button loginButton;  // Кнопка Вхід
-
-    @FXML
-    private Button logoutButton; // Кнопка Вихід
-
-    @FXML
-    private Label usernameLabel; // Лейбл для відображення імені користувача
-
-    // Логіка для відкриття різних вікон
-    @FXML
-    public void openOrdersView(ActionEvent event) throws IOException {
-        loadView("view/OrderView.fxml", "Управління Замовленнями", event);
+        ordersButton.setDisable(true);
+        kitchenButton.setDisable(true);
+        inventoryButton.setDisable(true);
+        reportingButton.setDisable(true);
+        menuButton.setDisable(true);
     }
 
-    @FXML
-    public void openKitchenView(ActionEvent event) throws IOException {
-        loadView("view/KitchenView.fxml", "Управління Кухнею", event);
-    }
-
-    @FXML
-    public void openInventoryView(ActionEvent event) throws IOException {
-        loadView("view/InventoryView.fxml", "Облік Складу", event);
-    }
-
-    @FXML
-    public void openReportingView(ActionEvent event) throws IOException {
-        loadView("view/ReportingView.fxml", "Звітність та Аналітика", event);
-    }
-
-    @FXML
-    public void openMenuView(ActionEvent event) throws IOException {
-        loadView("view/MenuView.fxml", "Управління Меню", event);
-    }
-
-    // Логіка для входу
-    @FXML
-    public void loginAction(ActionEvent event) {
-        // Логіка входу (після входу показуємо ім'я користувача)
-        System.out.println("Вхід до системи");
-
-        // Симуляція отримання імені користувача після авторизації
-        String username = "Ім'я користувача";  // Замініть на реальну логіку отримання імені користувача
-
-        // Відображення імені користувача
-        usernameLabel.setText(username);
+    // метод для входу та відкриття доступу
+    public void setRole(Role role) {
+        this.userRole = role;
+        usernameLabel.setText(role.getPosition());  // показуємо посаду на лейблі
         usernameLabel.setVisible(true);
 
-        // Сховати кнопки "Вхід" і показати "Вихід"
-        loginButton.setVisible(false);
-        logoutButton.setVisible(true);
+        // Доступ до кнопок залежно від посади
+        switch (role.getPosition()) {
+            case "COOK":
+                kitchenButton.setDisable(false); // Кухар
+                break;
+            case "WAITER":
+                ordersButton.setDisable(false); // Офіціант
+                break;
+            case "STOREKEEPER":
+                inventoryButton.setDisable(false); // Працівник складу
+                break;
+            case "ANALYST":
+                reportingButton.setDisable(false); // Аналітик
+                break;
+            case "MANAGER":
+                ordersButton.setDisable(false);
+                kitchenButton.setDisable(false);
+                inventoryButton.setDisable(false);
+                reportingButton.setDisable(false);
+                menuButton.setDisable(false); // Менеджер має доступ до всіх кнопок
+                break;
+        }
 
-        // Відкрити доступ до основних кнопок після входу
-        ordersButton.setDisable(false);
-        kitchenButton.setDisable(false);
-        inventoryButton.setDisable(false);
-        reportingButton.setDisable(false);
-        menuButton.setDisable(false);
+        loginTopButton.setVisible(false); // Ховаємо кнопку логіну
+        logoutTopButton.setVisible(true); // Показуємо кнопку логауту
     }
 
-    // Логіка для виходу
+    // Дія для логауту
     @FXML
     public void logoutAction(ActionEvent event) {
-        // Логіка для виходу (наприклад, очищення інформації та закриття вікна)
         System.out.println("Вихід з системи");
 
-        // Очищення імені користувача та приховування лейбла
+        userRole = null;
         usernameLabel.setText("");
         usernameLabel.setVisible(false);
 
-        // Показати кнопку "Вхід" і сховати "Вихід"
-        loginButton.setVisible(true);
-        logoutButton.setVisible(false);
+        loginTopButton.setVisible(true);
+        logoutTopButton.setVisible(false);
 
-        // Закрити доступ до основних кнопок після виходу
+        // Відключаємо всі кнопки доступу
         ordersButton.setDisable(true);
         kitchenButton.setDisable(true);
         inventoryButton.setDisable(true);
         reportingButton.setDisable(true);
         menuButton.setDisable(true);
 
-        // Закриття поточного вікна (можна додати свою логіку)
-        Stage stage = (Stage) logoutButton.getScene().getWindow();
-        stage.close();  // Закриває поточне вікно
+        try {
+            // Завантажуємо вікно входу
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/LoginView.fxml"));
+            Scene loginScene = new Scene(loader.load());
+            String css = getClass().getResource("/styles/LoginStyle.css").toExternalForm();
+            loginScene.getStylesheets().add(css);
+            // Отримуємо сцену поточного вікна
+            Stage currentStage = (Stage) ((Button) event.getSource()).getScene().getWindow();
+            currentStage.setTitle("Вхід до системи");
+            currentStage.setScene(loginScene);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    // Метод для завантаження різних вікон
-    private void loadView(String fxmlPath, String title, ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/" + fxmlPath));
-        Scene scene = new Scene(loader.load());
 
-        // Додавання стилів
-        scene.getStylesheets().add(getClass().getResource("*/styles/MainStyle.css").toExternalForm());
 
-        Stage stage = new Stage();
-        stage.setScene(scene);
-        stage.setTitle(title);
-        stage.show();
+    // Завантаження вікна для перегляду
+    private void loadView(String fxmlPath, String title) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/" + fxmlPath));
+            Scene scene = new Scene(loader.load());
 
-        // Опціонально: закрити поточне вікно
-        // ((Node)(event.getSource())).getScene().getWindow().hide();
+            scene.getStylesheets().add(getClass().getResource("/styles/MainStyle.css").toExternalForm());
+
+            Stage stage = new Stage();
+            stage.setScene(scene);
+            stage.setTitle(title);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
+    // Відкриття вікон
+    @FXML
+    public void openOrdersView(ActionEvent event) {
+        if (userRole != null && userRole.getPosition().equals("WAITER")) {
+            loadView("view/OrderView.fxml", "Управління Замовленнями");
+        }
+    }
+
+    @FXML
+    public void openKitchenView(ActionEvent event) {
+        if (userRole != null && userRole.getPosition().equals("COOK")) {
+            loadView("view/KitchenView.fxml", "Управління Кухнею");
+        }
+    }
+
+    @FXML
+    public void openInventoryView(ActionEvent event) {
+        if (userRole != null && userRole.getPosition().equals("STOREKEEPER")) {
+            loadView("view/InventoryView.fxml", "Облік Складу");
+        }
+    }
+
+    @FXML
+    public void openReportingView(ActionEvent event) {
+        if (userRole != null && userRole.getPosition().equals("ANALYST")) {
+            loadView("view/ReportingView.fxml", "Звітність та Аналітика");
+        }
+    }
+
+    @FXML
+    public void openMenuView(ActionEvent event) {
+        if (userRole != null && userRole.getPosition().equals("MANAGER")) {
+            loadView("view/MenuView.fxml", "Управління Меню");
+        }
+    }
+
+
+    // Дія для кнопки "Вхід"
+    @FXML
+    public void loginAction(ActionEvent event) {
+        loadView("view/LoginView.fxml", "Вхід до системи");
+    }
+
 }
+

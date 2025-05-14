@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.example.restaurant_management_system.controller.LoginController"
+            prefHeight="400.0" prefWidth="600.0"
+            styleClass="root">
+
+    <VBox alignment="CENTER" spacing="20.0" layoutX="150" layoutY="60">
+
+        <Label text="Вхід до системи" styleClass="title-label"/>
+
+        <TextField fx:id="usernameField" promptText="Ім'я користувача" prefWidth="300" styleClass="text-field"/>
+        <PasswordField fx:id="passwordField" promptText="Пароль" prefWidth="300" styleClass="password-field"/>
+
+        <Button text="Увійти" onAction="#handleLogin" styleClass="button"/>
+
+        <Label fx:id="errorLabel" textFill="red" styleClass="bottom-label" />
+    </VBox>
+
+</AnchorPane>

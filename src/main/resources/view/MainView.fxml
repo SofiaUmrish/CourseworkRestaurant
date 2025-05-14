@@ -7,55 +7,21 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<BorderPane prefHeight="680"
-            prefWidth="1000" xmlns="http://javafx.com/javafx/21"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.restaurant_management_system.controller.MainController">
+<BorderPane prefHeight="680" prefWidth="1000" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.restaurant_management_system.controller.MainController">
 
     <top>
-        <AnchorPane prefHeight="100"
-                    AnchorPane.leftAnchor="0"
-                    AnchorPane.rightAnchor="0"
-                    AnchorPane.topAnchor="0">
-
-            <Label fx:id="titleLabel"
-                   text="Система Управління Рестораном"
-                   styleClass="title-label"
-                   AnchorPane.leftAnchor="210"
-                   AnchorPane.rightAnchor="210"
-                   AnchorPane.topAnchor="40"
-                   alignment="CENTER"/>
-
-            <HBox fx:id="topRightButtons"
-                  alignment="TOP_RIGHT"
-                  AnchorPane.topAnchor="67"
-                  AnchorPane.rightAnchor="0">
-
-                <Button fx:id="loginTopButton"
-                        text="Вхід"
-                        onAction="#loginAction"
-                        styleClass="top-button"/>
-
-                <Button fx:id="logoutTopButton"
-                        text="Вихід"
-                        onAction="#logoutAction"
-                        styleClass="top-button"
-                        visible="false"/>
+        <AnchorPane prefHeight="100" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+            <Label fx:id="titleLabel" text="Система Управління Рестораном" styleClass="title-label" AnchorPane.leftAnchor="210" AnchorPane.rightAnchor="210" AnchorPane.topAnchor="40" alignment="CENTER"/>
+            <HBox fx:id="topRightButtons" alignment="TOP_RIGHT" spacing="10" AnchorPane.topAnchor="67" AnchorPane.rightAnchor="80">
+            <Button fx:id="loginTopButton" text="Вхід" onAction="#loginAction" styleClass="top-button"/>
+                <Button fx:id="logoutTopButton" text="Вихід" onAction="#logoutAction" styleClass="top-button" visible="false"/>
             </HBox>
-
-            <Label fx:id="usernameLabel"
-                   text="Ім'я користувача"
-                   styleClass="username-label"
-                   visible="false"
-                   AnchorPane.topAnchor="118"
-                   AnchorPane.rightAnchor="57"/>
+            <Label fx:id="usernameLabel" text="Ім'я користувача" styleClass="username-label" visible="false" AnchorPane.topAnchor="118" AnchorPane.rightAnchor="55"/>
         </AnchorPane>
     </top>
 
     <center>
         <VBox alignment="CENTER" spacing="20.0" BorderPane.alignment="CENTER">
-
-
-
             <VBox alignment="CENTER" spacing="20.0">
                 <Button fx:id="ordersButton" styleClass="button" mnemonicParsing="false" onAction="#openOrdersView" text="Управління Замовленнями"/>
                 <Button fx:id="kitchenButton" styleClass="button" mnemonicParsing="false" onAction="#openKitchenView" text="Управління Кухнею"/>
@@ -69,11 +35,11 @@
     <bottom>
         <HBox alignment="CENTER" spacing="10.0" BorderPane.alignment="CENTER">
             <children>
-                <Label styleClass="bottom-label" text="Версія 1.0" />
-                <Label styleClass="bottom-label" text="© 2025 Розроблено..." />
+                <Label styleClass="bottom-label" text="Версія 1.0"/>
+                <Label styleClass="bottom-label" text="© 2025 Розроблено..."/>
             </children>
             <padding>
-                <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
+                <Insets bottom="10.0" left="10.0" right="10.0" top="5.0"/>
             </padding>
         </HBox>
     </bottom>
