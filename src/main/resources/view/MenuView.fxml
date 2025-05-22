@@ -1,14 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="view.MenuView"
-            prefHeight="400.0" prefWidth="600.0">
 
+<AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.example.restaurant_management_system.controller.MenuController"
+            prefHeight="680" prefWidth="1000"
+            styleClass="root"
+            stylesheets="/styles/MenuStyle.css">
+
+    <VBox alignment="CENTER"  AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+          AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" styleClass="root">
+        <padding>
+            <Insets top="20" /> </padding>
+
+        <Label text="Меню ресторану"
+               styleClass="title-label"
+               layoutY="30"/>
+
+        <GridPane hgap="10" vgap="10">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20" />
+            </padding>
+            <columnConstraints>
+                <ColumnConstraints percentWidth="30"/>
+                <ColumnConstraints percentWidth="70"/>
+            </columnConstraints>
+
+            <Label text="Назва:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <TextField fx:id="nameField" promptText="Наприклад: Борщ" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+            <Label text="Ціна:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <TextField fx:id="priceField" promptText="Наприклад: 120" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+            <Label text="Категорія:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <ComboBox fx:id="categoryComboBox" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+            <Label text="Опції:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <HBox spacing="10" GridPane.rowIndex="3" GridPane.columnIndex="1">
+                <CheckBox fx:id="vegetarianCheckBox" text="Вегетаріанське"/>
+                <CheckBox fx:id="allergenCheckBox" text="Містить алергени"/>
+                <CheckBox fx:id="glutenFreeCheckBox" text="Без глютену"/>
+            </HBox>
+        </GridPane>
+
+        <HBox spacing="20" alignment="CENTER">
+            <padding>
+                <Insets top="10" bottom="30" /> </padding>
+            <Button text="Додати" onAction="#handleAddItem"/>
+            <Button text="Редагувати" onAction="#handleEditItem"/>
+            <Button text="Видалити" onAction="#handleDeleteItem"/>
+        </HBox>
+
+        <TableView fx:id="menuTableView"
+                   VBox.vgrow="ALWAYS"
+                   prefHeight="230" prefWidth="1000"
+                   onMouseClicked="#handleRowClick">
+            <padding>
+                <Insets top="35" right="0" bottom="0" left="0"/>
+            </padding>
+            <columns>
+                <TableColumn fx:id="nameColumn" text="Назва" prefWidth="215"/>
+            <TableColumn fx:id="priceColumn" text="Ціна" prefWidth="125"/>
+            <TableColumn fx:id="categoryColumn" text="Категорія" prefWidth="160"/>
+            <TableColumn fx:id="vegetarianColumn" text="Вегетаріанське" prefWidth="180"/>
+            <TableColumn fx:id="allergenColumn" text="Алергени" prefWidth="150"/>
+            <TableColumn fx:id="glutenFreeColumn" text="Без глютену" prefWidth="155"/>
+
+        </columns>
+
+        </TableView>
+    </VBox>
 </AnchorPane>

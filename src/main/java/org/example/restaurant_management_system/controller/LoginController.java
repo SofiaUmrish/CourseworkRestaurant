@@ -12,7 +12,10 @@ import javafx.scene.control.TextField;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.example.restaurant_management_system.model.Role;
+
+import org.example.restaurant_management_system.model.Employee;
+import org.example.restaurant_management_system.service.EmployeeService;
+import org.example.restaurant_management_system.exception.AuthenticationException;
 
 public class LoginController {
 
@@ -20,57 +23,45 @@ public class LoginController {
     @FXML private PasswordField passwordField;
     @FXML private Label errorLabel;
 
-
     private MainController mainController;
 
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
     }
 
+
     @FXML
-    public void handleLogin(ActionEvent event) {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
+    public void handleLogin(ActionEvent event) throws IOException {
+        try {
+            int employeeId = Integer.parseInt(usernameField.getText());
+            String password = passwordField.getText();
 
-        Role authenticatedRole = authenticate(username, password);
+            Employee employee = EmployeeService.authenticateById(employeeId, password);
 
-        if (authenticatedRole != null) {
-            try {
+            if (employee != null) {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainView.fxml"));
                 Scene scene = new Scene(loader.load());
                 scene.getStylesheets().add(getClass().getResource("/styles/MainStyle.css").toExternalForm());
+
                 MainController mainController = loader.getController();
-                mainController.setRole(authenticate(username, password));
+                mainController.setEmployee(employee);
 
                 Stage stage = new Stage();
                 stage.setTitle("Система управління рестораном");
                 stage.setScene(scene);
                 stage.show();
 
-                // закриваємо вікно логіну
                 ((Stage) ((Button) event.getSource()).getScene().getWindow()).close();
-
-            } catch (IOException e) {
-                e.printStackTrace();
             }
 
-        } else {
-            errorLabel.setText("Невірне ім’я користувача або пароль!");
+        } catch (NumberFormatException e) {
+            errorLabel.setText("ID має бути числом.");
+        } catch (AuthenticationException ae) {
+            errorLabel.setText(ae.getMessage());
         }
     }
 
 
-
-    private Role authenticate(String username, String password) {
-        return switch (username.toLowerCase()) {
-            case "cook" -> password.equals("123") ? new Role(1, "COOK") : null;
-            case "waiter" -> password.equals("123") ? new Role(2, "WAITER") : null;
-            case "storekeeper" -> password.equals("123") ? new Role(3, "STOREKEEPER") : null;
-            case "analyst" -> password.equals("123") ? new Role(4, "ANALYST") : null;
-            case "manager" -> password.equals("admin") ? new Role(5, "MANAGER") : null;
-            default -> null;
-        };
-    }
 
     private void showSuccessAlert() {
         Alert alert = new Alert(AlertType.INFORMATION);

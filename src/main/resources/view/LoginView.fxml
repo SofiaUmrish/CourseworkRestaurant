@@ -13,12 +13,12 @@
 
         <Label text="Вхід до системи" styleClass="title-label"/>
 
-        <TextField fx:id="usernameField" promptText="Ім'я користувача" prefWidth="300" styleClass="text-field"/>
+        <TextField fx:id="usernameField" promptText="ID користувача" prefWidth="300" styleClass="text-field"/>
         <PasswordField fx:id="passwordField" promptText="Пароль" prefWidth="300" styleClass="password-field"/>
 
         <Button text="Увійти" onAction="#handleLogin" styleClass="button"/>
 
-        <Label fx:id="errorLabel" textFill="red" styleClass="bottom-label" />
+        <Label fx:id="errorLabel" textFill="#ff2377" styleClass="bottom-label" />
     </VBox>
 
 </AnchorPane>

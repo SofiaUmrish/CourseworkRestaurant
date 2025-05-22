@@ -1,11 +1,10 @@
-/* ===== Загальні стилі ===== */
+/* загальні стилі */
 .root {
     -fx-background-color: #20181c;
     -fx-font-family: "Segoe UI", "Roboto", "Raleway", sans-serif;
     -fx-alignment: center;
 }
 
-/* ===== Заголовок (тайтл) ===== */
 .title-label {
     -fx-font-family: "Segoe UI";
     -fx-font-size: 23px;
@@ -22,7 +21,6 @@
     -fx-effect: dropshadow(gaussian, #000000, 18, 0.7, 0, 0);
 }
 
-/* ===== Кнопка ===== */
 .button {
     -fx-background-color: #fb64a4;
     -fx-text-fill: #000000;
@@ -46,7 +44,6 @@
     -fx-effect: dropshadow(gaussian, #000000, 15, 0.8, 0, 0); /* Неонова підсвітка */
 }
 
-/* ===== Поля введення ===== */
 .text-field, .password-field {
     -fx-background-color: #000000;
     -fx-text-fill: white;
@@ -60,7 +57,6 @@
     -fx-translate-y: 15px;
 }
 
-/* ===== Додатковий лейбл ===== */
 .bottom-label {
     -fx-text-fill: #999999;
     -fx-font-size: 12px;

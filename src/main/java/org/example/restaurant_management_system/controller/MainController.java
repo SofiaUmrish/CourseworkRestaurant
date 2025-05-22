@@ -1,15 +1,18 @@
 package org.example.restaurant_management_system.controller;
 
-import org.example.restaurant_management_system.model.Role;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import org.example.restaurant_management_system.model.Employee;
+import org.example.restaurant_management_system.model.Position;
 
 import java.io.IOException;
+import java.net.URL;
 
 public class MainController {
 
@@ -22,9 +25,8 @@ public class MainController {
     @FXML private Button logoutTopButton;
     @FXML private Label usernameLabel;
 
-    private Role userRole;
+    private Employee employee;
 
-    // ініціалізація — кнопки неактивні, користувач неавторизований
     @FXML
     private void initialize() {
         usernameLabel.setVisible(false);
@@ -37,52 +39,49 @@ public class MainController {
         menuButton.setDisable(true);
     }
 
-    // метод для входу та відкриття доступу
-    public void setRole(Role role) {
-        this.userRole = role;
-        usernameLabel.setText(role.getPosition());  // показуємо посаду на лейблі
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+        Position position = employee.getPosition();
+        String positionName = position.getName();  // виправлено тут
+
+        usernameLabel.setText(positionName + ":\n\n" + employee.getFirstName() + " " + employee.getLastName());
         usernameLabel.setVisible(true);
 
-        // Доступ до кнопок залежно від посади
-        switch (role.getPosition()) {
-            case "COOK":
-                kitchenButton.setDisable(false); // Кухар
+        switch (positionName) {
+            case "Кухар":
+                kitchenButton.setDisable(false);
                 break;
-            case "WAITER":
-                ordersButton.setDisable(false); // Офіціант
+            case "Офіціант":
+                ordersButton.setDisable(false);
                 break;
-            case "STOREKEEPER":
-                inventoryButton.setDisable(false); // Працівник складу
+            case "Комірник":
+                inventoryButton.setDisable(false);
                 break;
-            case "ANALYST":
-                reportingButton.setDisable(false); // Аналітик
+            case "Аналітик":
+                reportingButton.setDisable(false);
                 break;
-            case "MANAGER":
+            case "Менеджер":
                 ordersButton.setDisable(false);
                 kitchenButton.setDisable(false);
                 inventoryButton.setDisable(false);
                 reportingButton.setDisable(false);
-                menuButton.setDisable(false); // Менеджер має доступ до всіх кнопок
+                menuButton.setDisable(false);
                 break;
         }
 
-        loginTopButton.setVisible(false); // Ховаємо кнопку логіну
-        logoutTopButton.setVisible(true); // Показуємо кнопку логауту
+        loginTopButton.setVisible(false);
+        logoutTopButton.setVisible(true);
     }
 
-    // Дія для логауту
     @FXML
     public void logoutAction(ActionEvent event) {
-        System.out.println("Вихід з системи");
-
-        userRole = null;
+        employee = null;
         usernameLabel.setText("");
         usernameLabel.setVisible(false);
 
         loginTopButton.setVisible(true);
         logoutTopButton.setVisible(false);
 
-        // Відключаємо всі кнопки доступу
         ordersButton.setDisable(true);
         kitchenButton.setDisable(true);
         inventoryButton.setDisable(true);
@@ -90,12 +89,11 @@ public class MainController {
         menuButton.setDisable(true);
 
         try {
-            // Завантажуємо вікно входу
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/LoginView.fxml"));
             Scene loginScene = new Scene(loader.load());
             String css = getClass().getResource("/styles/LoginStyle.css").toExternalForm();
             loginScene.getStylesheets().add(css);
-            // Отримуємо сцену поточного вікна
+
             Stage currentStage = (Stage) ((Button) event.getSource()).getScene().getWindow();
             currentStage.setTitle("Вхід до системи");
             currentStage.setScene(loginScene);
@@ -105,67 +103,133 @@ public class MainController {
         }
     }
 
-
-
-    // Завантаження вікна для перегляду
     private void loadView(String fxmlPath, String title) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/" + fxmlPath));
-            Scene scene = new Scene(loader.load());
+            URL fxmlUrl = getClass().getResource(fxmlPath);
+            if (fxmlUrl == null) {
+                System.err.println("FXML не знайдено за шляхом: " + fxmlPath);
+                return;
+            }
 
-            scene.getStylesheets().add(getClass().getResource("/styles/MainStyle.css").toExternalForm());
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+
+            // Додаємо стиль, якщо потрібно
+            String cssPath = "/styles/MainStyle.css";
+            URL cssUrl = getClass().getResource(cssPath);
+            if (cssUrl != null) {
+                scene.getStylesheets().add(cssUrl.toExternalForm());
+            }
 
             Stage stage = new Stage();
-            stage.setScene(scene);
             stage.setTitle(title);
+            stage.setTitle(title);
+            stage.setScene(scene);
             stage.show();
         } catch (IOException e) {
+            System.err.println("Не вдалося завантажити: " + fxmlPath);
             e.printStackTrace();
         }
     }
 
-    // Відкриття вікон
     @FXML
     public void openOrdersView(ActionEvent event) {
-        if (userRole != null && userRole.getPosition().equals("WAITER")) {
-            loadView("view/OrderView.fxml", "Управління Замовленнями");
+        if (employee != null && (
+                employee.getPosition().getName().equalsIgnoreCase("Офіціант") ||
+                        employee.getPosition().getName().equalsIgnoreCase("Менеджер")
+        )) {
+            System.out.println("Спроба відкрити OrderView.fxml");
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/OrderView.fxml"));
+                Parent view = loader.load();
+
+                // Створюємо нову сцену і вікно
+                Scene scene = new Scene(view);
+
+                // Додаємо стиль, якщо є
+                String cssPath = "/styles/MainStyle.css";
+                if (getClass().getResource(cssPath) != null) {
+                    scene.getStylesheets().add(getClass().getResource(cssPath).toExternalForm());
+                }
+
+                Stage stage = new Stage();
+                stage.setTitle("Управління Замовленнями");
+                stage.setScene(scene);
+                stage.show();
+
+            } catch (IOException e) {
+                System.err.println("Не вдалося завантажити OrderView.fxml");
+                e.printStackTrace();
+            }
         }
     }
 
+
     @FXML
     public void openKitchenView(ActionEvent event) {
-        if (userRole != null && userRole.getPosition().equals("COOK")) {
+        if (employee != null && (
+                employee.getPosition().getName().equalsIgnoreCase("Кухар") ||
+                        employee.getPosition().getName().equalsIgnoreCase("Менеджер")
+        )) {
             loadView("view/KitchenView.fxml", "Управління Кухнею");
         }
     }
 
     @FXML
     public void openInventoryView(ActionEvent event) {
-        if (userRole != null && userRole.getPosition().equals("STOREKEEPER")) {
+        if (employee != null && (
+                employee.getPosition().getName().equalsIgnoreCase("Комірник") ||
+                        employee.getPosition().getName().equalsIgnoreCase("Менеджер")
+        )) {
             loadView("view/InventoryView.fxml", "Облік Складу");
         }
     }
 
     @FXML
     public void openReportingView(ActionEvent event) {
-        if (userRole != null && userRole.getPosition().equals("ANALYST")) {
+        if (employee != null && (
+                employee.getPosition().getName().equalsIgnoreCase("Аналітик") ||
+                        employee.getPosition().getName().equalsIgnoreCase("Менеджер")
+        )) {
             loadView("view/ReportingView.fxml", "Звітність та Аналітика");
         }
     }
 
     @FXML
     public void openMenuView(ActionEvent event) {
-        if (userRole != null && userRole.getPosition().equals("MANAGER")) {
-            loadView("view/MenuView.fxml", "Управління Меню");
+        if (employee != null && (
+
+                        employee.getPosition().getName().equalsIgnoreCase("Менеджер")
+        )) {
+            System.out.println("Спроба відкрити MenuView.fxml");
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MenuView.fxml"));
+                Parent view = loader.load();
+
+                // Створюємо нову сцену і вікно
+                Scene scene = new Scene(view);
+
+                // Додаємо стиль, якщо є
+                String cssPath = "/styles/MenuStyle.css";
+                if (getClass().getResource(cssPath) != null) {
+                    scene.getStylesheets().add(getClass().getResource(cssPath).toExternalForm());
+                }
+
+                Stage stage = new Stage();
+                stage.setTitle("Управління Меню");
+                stage.setScene(scene);
+                stage.show();
+
+            } catch (IOException e) {
+                System.err.println("Не вдалося завантажити MenuView.fxml");
+                e.printStackTrace();
+            }
         }
     }
 
-
-    // Дія для кнопки "Вхід"
     @FXML
     public void loginAction(ActionEvent event) {
         loadView("view/LoginView.fxml", "Вхід до системи");
     }
-
 }
-

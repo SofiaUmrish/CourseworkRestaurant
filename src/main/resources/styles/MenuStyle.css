@@ -1,0 +1,200 @@
+
+.root {
+    -fx-background-color: #20181c;
+    -fx-font-family: "Segoe UI", "Roboto", "Raleway", sans-serif;
+}
+
+.label {
+    -fx-font-size: 14px; /* Зменшено розмір шрифту */
+    -fx-font-weight: bold;
+    -fx-text-fill: #fb64a4; /* Змінено на білий текст */
+    -fx-background-color: #000000; /* Фон як у полів введення */
+    -fx-background-radius: 10px; /* Трохи менше заокруглення */
+    -fx-padding: 8px 15px; /* Менші відступи */
+    -fx-border-color: #fb64a4;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px; /* Менший радіус рамки */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 5, 0.3, 0, 0); /* Менша тінь */
+    -fx-text-alignment: CENTER; /* Вирівнювання тексту зліва */
+}
+
+.title-label {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #fb64a4;
+    -fx-background-color: #000000;
+    -fx-background-radius: 20px;
+    -fx-padding: 20px;
+    -fx-border-color: #fb64a4;
+    -fx-border-width: 1px;
+    -fx-border-radius: 15px;
+    -fx-effect: dropshadow(gaussian, #000000, 18, 0.7, 0, 0);
+    -fx-alignment: center;
+}
+
+.text-field, .check-box, .button {
+    -fx-font-size: 14px;
+    -fx-padding: 5px;
+}
+
+.text-field {
+    -fx-background-color: #000000;
+    -fx-text-fill: #fb64a4;
+    -fx-border-color: #fb64a4;
+    -fx-border-radius: 5px;
+    -fx-border-width: 1;
+}
+/*дані про елемент меню */
+.combo-box {
+    -fx-background-color: #000000;
+    -fx-background-radius:8px ;
+    -fx-text-fill: #000000;
+    -fx-border-radius: 8px;
+    -fx-border-color:#000000;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, #fb64a4, 15, 0.8, 0, 0);
+    -fx-transition: all 0.3s ease;
+}
+
+/* випадаючий список */
+.combo-box .list-view {
+    -fx-background-radius: 8px;
+    -fx-background-color: #000000;
+    -fx-border-color: #000000;
+    -fx-border-radius: 8px;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 10, 0.5, 0, 0);
+}
+
+.combo-box .list-cell {
+    -fx-background-radius: 8px;
+    -fx-background-color: #000000;
+    -fx-text-fill: #000000;
+    -fx-padding: 5px 10px;
+}
+
+.combo-box .list-cell:filled:selected, .combo-box .list-cell:filled:selected:hover {
+    -fx-background-color: #000000;
+    -fx-text-fill: #fb64a4;
+}
+
+.combo-box .arrow-button {
+    -fx-background-color: #fb64a4;
+    -fx-background-radius: 8px;
+}
+
+.combo-box .arrow {
+    -fx-background-color: #000000;
+}
+
+
+
+/* фільтри*/
+.check-box {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #fb64a4;
+    -fx-background-color: #000000;
+    -fx-background-radius: 10px;
+    -fx-padding: 8px 15px;
+    -fx-border-color: #fb64a4;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 5, 0.3, 0, 0);
+    -fx-text-alignment: CENTER;
+
+}
+
+/* квадратик чекбокса */
+.check-box .box {
+    -fx-background-color: #000000;
+    -fx-border-color: #fb64a4;
+    -fx-border-width: 2;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+    -fx-pref-width: 18;
+    -fx-pref-height: 18;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #fb64a4;
+}
+
+/* мітка для вибраного */
+.check-box .mark {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.button {
+    -fx-background-color: #fb64a4;
+    -fx-text-fill: #000000;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-background-radius: 10px;
+    -fx-border-color: #181a20;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-effect: dropshadow(gaussian, #fb64a4, 15, 0.8, 0, 0);
+    -fx-transition: all 0.3s ease;
+}
+
+.button:hover {
+    -fx-background-color: #000000;
+    -fx-border-color: #fb64a4;
+    -fx-text-fill: #fb64a4;
+    -fx-effect: dropshadow(gaussian, #000000, 15, 0.8, 0, 0);
+}
+
+
+
+/* таблиця*/
+.table-view {
+    -fx-background-color: #fd6ba9;
+    -fx-border-width: 0; /* без бордерів */
+    -fx-padding: 0;
+    -fx-table-cell-vertical-alignment: CENTER; /* Вирівнювання вмісту комірок по центру */
+}
+
+.table-column {
+    -fx-alignment: CENTER;
+}
+
+.table-view .column-header-background,
+.table-view .filler {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+
+.table-view .column-header {
+    -fx-text-fill: #000000;
+    -fx-background-color: #000000;
+    -fx-font-weight: bold;
+    -fx-border-color: #000000;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.table-view .column-header .label{
+    -fx-border-color: #000000;
+}
+
+.table-view .table-cell {
+    -fx-text-fill: #000000;
+    -fx-border-color: #000000;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.table-view .table-row-cell {
+    -fx-background-color: transparent; /*для видимості фону рядка*/
+    -fx-cell-size: 35px;
+}
+
+.table-view .table-row-cell:filled:hover {
+    -fx-background-color: #fd64a5;
+    -fx-text-fill: #000000;
+}
+
+.table-view .table-row-cell:filled:selected .table-cell {
+    -fx-background-color: #000000;
+    -fx-text-fill: #fb64a4 !important;
+}
