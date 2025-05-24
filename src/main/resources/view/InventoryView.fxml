@@ -1,14 +1,135 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="view.InventoryView"
-            prefHeight="400.0" prefWidth="600.0">
+<AnchorPane fx:id="inventoryPane"
+            xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.restaurant_management_system.controller.InventoryController"
+            prefHeight="680" prefWidth="1000"
+            styleClass="root">
+    <children>
+        <VBox alignment="TOP_CENTER" spacing="10.0"  AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <padding>
+                <Insets top="20.0" right="20.0" bottom="20.0" left="20.0" />
+            </padding>
+            <children>
+                <Label text="Управління складом та запасами" styleClass="title-label">
+                    <VBox.margin>
+                        <Insets bottom="5.0" /> </VBox.margin>
+                </Label>
 
+                <HBox alignment="TOP_LEFT" spacing="25.0" VBox.vgrow="ALWAYS"> <children>
+                    <VBox spacing="8.0" alignment="TOP_LEFT" HBox.hgrow="ALWAYS" minWidth="545.0" maxWidth="545.0">
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <Label text="Фільтр складу:"/>
+                            <ChoiceBox fx:id="filterChoiceBox" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                        </HBox>
+
+                        <TableView fx:id="ingredientTable" prefHeight="240.0" prefWidth="545.0" VBox.vgrow="ALWAYS"> <VBox.margin>
+                            <Insets top="5.0" bottom="5.0"/>
+                        </VBox.margin>
+                            <columns>
+                                <TableColumn fx:id="nameColumn" prefWidth="150.0" text="Назва" />
+                                <TableColumn fx:id="unitColumn" prefWidth="110.0" text="Одиниця" />
+                                <TableColumn fx:id="stockColumn" prefWidth="110.0" text="Запас" />
+                                <TableColumn fx:id="expirationColumn" prefWidth="180.0" text="Термін придатності" /> </columns>
+                        </TableView>
+
+                        <Label text="Керування запасами інгредієнтів" >
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Label>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <Label text="Інгредієнт:"/>
+                            <TextField fx:id="inputNameField" promptText="Назва інгредієнта" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <Label text="Одиниця:"/>
+                            <TextField fx:id="inputUnitField" promptText="Одиниця" prefWidth="85.0" />
+                            <Label text="Кількість:"/>
+                            <TextField fx:id="inputQuantityField" promptText="Запас" prefWidth="80.0"/>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <Label text="Термін придатності:"/>
+                            <DatePicker fx:id="inputExpirationDatePicker" promptText="Оберіть дату"/>
+                            <Button onAction="#handleAddNewIngredient" text="Додати/Оновити"/>
+                        </HBox>
+
+                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                            <VBox.margin>
+                                <Insets top="5.0" />
+                            </VBox.margin>
+                            <Button onAction="#handleUseIngredient" text="Списати зі складу"/>
+                            <Button onAction="#handleCheckExpiration" text="Перевірити терміни"/>
+                            <Button onAction="#handleDiscardSpoiled" text="Списати прострочене"/>
+                        </HBox>
+
+                        <Label fx:id="messageLabel" maxWidth="Infinity" prefHeight="25.0" wrapText="true">
+                            <font>
+                                <Font size="12.0" />
+                            </font>
+                            <VBox.margin>
+                                <Insets top="10.0" />
+                            </VBox.margin>
+                        </Label>
+                    </VBox>
+
+
+                    <VBox spacing="8.0" alignment="TOP_LEFT" HBox.hgrow="ALWAYS" minWidth="385.0" maxWidth="385.0">
+                        <Label text="Рецепти страв" maxWidth="Infinity" alignment="CENTER">
+                        <VBox.margin>
+                                <Insets bottom="5.0" /> </VBox.margin>
+                        </Label>
+
+                        <Label text="Виберіть страву:"/>
+                        <ComboBox fx:id="menuItemRecipeComboBox" promptText="Оберіть страву" maxWidth="Infinity" HBox.hgrow="ALWAYS">
+                            <VBox.margin>
+                                <Insets bottom="5.0"/> </VBox.margin>
+                        </ComboBox>
+
+                        <TableView fx:id="recipeIngredientTable" prefHeight="260.0" prefWidth="380.0" VBox.vgrow="ALWAYS"> <VBox.margin>
+                            <Insets top="5.0" bottom="5.0"/>
+                        </VBox.margin>
+                            <columns>
+                                <TableColumn fx:id="recipeIngredientNameColumn" prefWidth="170.0" text="Назва інгредієнту" />
+                                <TableColumn fx:id="recipeIngredientUnitColumn" prefWidth="105.0" text="Одиниця" />
+                                <TableColumn fx:id="recipeIngredientQuantityColumn" prefWidth="110.0" text="Кількість" />
+                            </columns>
+                        </TableView>
+
+                        <Label text="Додати/Оновити інгредієнт в рецепті:" >
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Label>
+
+                        <Label text="Виберіть інгредієнт:"/>
+                        <ComboBox fx:id="ingredientForRecipeComboBox" promptText="Виберіть інгредієнт" maxWidth="Infinity" HBox.hgrow="ALWAYS">
+                            <VBox.margin>
+                                <Insets bottom="5.0"/>
+                            </VBox.margin>
+                        </ComboBox>
+
+                        <Label text="Кількість:"/>
+                        <TextField fx:id="quantityForRecipeField" promptText="Кількість" prefWidth="150.0">
+                            <VBox.margin>
+                                <Insets bottom="5.0"/>
+                            </VBox.margin>
+                        </TextField>
+
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <Button onAction="#handleAddIngredientToRecipe" text="Додати/Оновити" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                            <Button onAction="#handleRemoveIngredientFromRecipe" text="Видалити" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                        </HBox>
+                    </VBox>
+                </children>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
 </AnchorPane>

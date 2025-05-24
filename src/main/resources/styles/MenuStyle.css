@@ -69,7 +69,7 @@
 .combo-box .list-cell {
     -fx-background-radius: 8px;
     -fx-background-color: #000000;
-    -fx-text-fill: #000000;
+    -fx-text-fill: #fb64a4;
     -fx-padding: 5px 10px;
 }
 
@@ -197,4 +197,17 @@
 .table-view .table-row-cell:filled:selected .table-cell {
     -fx-background-color: #000000;
     -fx-text-fill: #fb64a4 !important;
+}
+
+.table-view .scroll-bar:vertical .track-background,
+.table-view .scroll-bar:horizontal .track-background {
+    -fx-background-color: #000000; /* Чорний фон треку скролбару */
+    -fx-background-insets: 0;
+}
+
+.table-view .scroll-bar:vertical .thumb,
+.table-view .scroll-bar:horizontal .thumb {
+    -fx-background-color: #d8caca; /* Рожевий повзунок скролбару */
+    -fx-background-insets: 0;
+    -fx-background-radius: 5px;
 }

@@ -8,8 +8,7 @@
 <AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
             fx:controller="org.example.restaurant_management_system.controller.MenuController"
             prefHeight="680" prefWidth="1000"
-            styleClass="root"
-            stylesheets="/styles/MenuStyle.css">
+            styleClass="root">
 
     <VBox alignment="CENTER"  AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
           AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" styleClass="root">

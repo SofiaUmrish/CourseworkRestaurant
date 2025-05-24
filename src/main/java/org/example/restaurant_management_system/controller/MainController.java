@@ -176,15 +176,41 @@ public class MainController {
         }
     }
 
+
+
     @FXML
     public void openInventoryView(ActionEvent event) {
         if (employee != null && (
+
                 employee.getPosition().getName().equalsIgnoreCase("Комірник") ||
                         employee.getPosition().getName().equalsIgnoreCase("Менеджер")
         )) {
-            loadView("view/InventoryView.fxml", "Облік Складу");
+            System.out.println("Спроба відкрити InventoryView.fxml");
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/InventoryView.fxml"));
+                Parent view = loader.load();
+
+                // Створюємо нову сцену і вікно
+                Scene scene = new Scene(view);
+
+                // Додаємо стиль, якщо є
+                String cssPath = "/styles/InventoryStyle.css";
+                if (getClass().getResource(cssPath) != null) {
+                    scene.getStylesheets().add(getClass().getResource(cssPath).toExternalForm());
+                }
+
+                Stage stage = new Stage();
+                stage.setTitle("Облік складу і запасів ");
+                stage.setScene(scene);
+                stage.show();
+
+            } catch (IOException e) {
+                System.err.println("Не вдалося завантажити InventoryView.fxml");
+                e.printStackTrace();
+            }
         }
     }
+
 
     @FXML
     public void openReportingView(ActionEvent event) {
