@@ -42,7 +42,7 @@ public class MainController {
     public void setEmployee(Employee employee) {
         this.employee = employee;
         Position position = employee.getPosition();
-        String positionName = position.getName();  // виправлено тут
+        String positionName = position.getName();
 
         usernameLabel.setText(positionName + ":\n\n" + employee.getFirstName() + " " + employee.getLastName());
         usernameLabel.setVisible(true);
@@ -115,7 +115,6 @@ public class MainController {
             Parent root = loader.load();
             Scene scene = new Scene(root);
 
-            // Додаємо стиль, якщо потрібно
             String cssPath = "/styles/MainStyle.css";
             URL cssUrl = getClass().getResource(cssPath);
             if (cssUrl != null) {
@@ -144,10 +143,8 @@ public class MainController {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/OrderView.fxml"));
                 Parent view = loader.load();
 
-                // Створюємо нову сцену і вікно
                 Scene scene = new Scene(view);
 
-                // Додаємо стиль, якщо є
                 String cssPath = "/styles/InventoryStyle.css";
                 if (getClass().getResource(cssPath) != null) {
                     scene.getStylesheets().add(getClass().getResource(cssPath).toExternalForm());
@@ -172,11 +169,43 @@ public class MainController {
                 employee.getPosition().getName().equalsIgnoreCase("Кухар") ||
                         employee.getPosition().getName().equalsIgnoreCase("Менеджер")
         )) {
-            loadView("view/KitchenView.fxml", "Управління Кухнею");
+            System.out.println("Спроба відкрити KitchenView.fxml");
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/KitchenView.fxml"));
+                Parent view = loader.load();
+
+                Scene scene = new Scene(view);
+
+                // Шлях до першого CSS файлу
+                String inventoryCssPath = "/styles/InventoryStyle.css";
+                if (getClass().getResource(inventoryCssPath) != null) {
+                    scene.getStylesheets().add(getClass().getResource(inventoryCssPath).toExternalForm());
+                    System.out.println("Завантажено CSS: " + inventoryCssPath);
+                } else {
+                    System.err.println("CSS файл не знайдено: " + inventoryCssPath);
+                }
+
+                // Шлях до другого CSS файлу (KitchenStyle.css)
+                String kitchenCssPath = "/styles/KitchenStyle.css"; // ПЕРЕВІРТЕ ШЛЯХ ДО ВАШОГО CSS ФАЙЛУ
+                if (getClass().getResource(kitchenCssPath) != null) {
+                    scene.getStylesheets().add(getClass().getResource(kitchenCssPath).toExternalForm());
+                    System.out.println("Завантажено CSS: " + kitchenCssPath);
+                } else {
+                    System.err.println("CSS файл не знайдено: " + kitchenCssPath);
+                }
+
+
+                Stage stage = new Stage();
+                stage.setTitle("Управління Кухнею");
+                stage.setScene(scene);
+                stage.show();
+
+            } catch (IOException e) {
+                System.err.println("Не вдалося завантажити KitchenView.fxml");
+                e.printStackTrace();
+            }
         }
     }
-
-
 
     @FXML
     public void openInventoryView(ActionEvent event) {
@@ -190,10 +219,8 @@ public class MainController {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/InventoryView.fxml"));
                 Parent view = loader.load();
 
-                // Створюємо нову сцену і вікно
                 Scene scene = new Scene(view);
 
-                // Додаємо стиль, якщо є
                 String cssPath = "/styles/InventoryStyle.css";
                 if (getClass().getResource(cssPath) != null) {
                     scene.getStylesheets().add(getClass().getResource(cssPath).toExternalForm());
@@ -233,10 +260,8 @@ public class MainController {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MenuView.fxml"));
                 Parent view = loader.load();
 
-                // Створюємо нову сцену і вікно
                 Scene scene = new Scene(view);
 
-                // Додаємо стиль, якщо є
                 String cssPath = "/styles/MenuStyle.css";
                 if (getClass().getResource(cssPath) != null) {
                     scene.getStylesheets().add(getClass().getResource(cssPath).toExternalForm());
@@ -253,6 +278,8 @@ public class MainController {
             }
         }
     }
+
+
 
     @FXML
     public void loginAction(ActionEvent event) {

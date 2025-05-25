@@ -1,0 +1,13 @@
+
+.table-view .column-header-background .filler {
+    -fx-font-size: 16px;
+    -fx-size: 50px;
+}
+
+.table-view .table-row-cell {
+    -fx-cell-size: 45px;
+}
+
+.table-cell {
+    -fx-font-size: 14px;
+   }

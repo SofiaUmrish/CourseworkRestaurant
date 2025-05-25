@@ -9,9 +9,12 @@ import java.util.List;
 public class OrderService {
 
     private final Connection connection;
+    private KitchenService kitchenService; // залежність від KitchenService
+
 
     public OrderService(Connection connection) {
         this.connection = connection;
+        this.kitchenService = new KitchenService();
     }
 
     private Order createOrderFromResultSet(ResultSet rs) throws SQLException {
@@ -67,7 +70,7 @@ public class OrderService {
                 }
             }
         }
-        return null;
+        return null; // Повертаємо null, якщо клієнта не знайдено
     }
 
     private void updateClientLoyaltyPointsInDB(int clientId, double newLoyaltyPoints) throws SQLException {
@@ -261,7 +264,7 @@ public class OrderService {
     }
 
     public List<Client> getAllClients() throws SQLException {
-        List<Client> clients = new ArrayList<>();
+        List<Client> clients = new ArrayList<>(); // Перенесено сюди, щоб було в області видимості
         String query = "SELECT id, first_name, last_name, phone_number, email, loyalty_points FROM clients";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             try (ResultSet rs = stmt.executeQuery()) {
@@ -269,9 +272,9 @@ public class OrderService {
                     clients.add(new Client(rs.getInt("id"), rs.getString("first_name"), rs.getString("last_name"),
                             rs.getString("phone_number"), rs.getString("email"), rs.getDouble("loyalty_points")));
                 }
-            }
-        }
-        return clients;
+            } // Закриваюча дужка для ResultSet
+        } // Закриваюча дужка для PreparedStatement
+        return clients; // Тепер clients знаходиться в області видимості
     }
     public List<Employee> getAllEmployees(String positionName) throws SQLException {
         List<Employee> employees = new ArrayList<>();
@@ -291,21 +294,57 @@ public class OrderService {
         return employees;
     }
     public List<Employee> getAllEmployees() throws SQLException { return getAllEmployees(null); }
+
+
     public OrderItem createOrderItem(OrderItem orderItem) throws SQLException {
         String sql = "INSERT INTO order_items (order_id, menu_item_id, quantity, price_at_order) VALUES (?, ?, ?, ?)";
+        int newOrderItemId = -1; // Ініціалізуємо для зберігання згенерованого ID
+
         try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setInt(1, orderItem.getOrderId());
             pstmt.setInt(2, orderItem.getMenuItemId());
             pstmt.setInt(3, orderItem.getQuantity());
             pstmt.setDouble(4, orderItem.getPriceAtOrder());
             pstmt.executeUpdate();
+
             try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
-                if (generatedKeys.next()) orderItem.setId(generatedKeys.getInt(1));
-                else throw new SQLException("Помилка при створенні позиції замовлення, ID не отримано.");
+                if (generatedKeys.next()) {
+                    newOrderItemId = generatedKeys.getInt(1);
+                    orderItem.setId(newOrderItemId); // Встановлюємо ID для поверненого об'єкта
+                } else {
+                    throw new SQLException("Помилка при створенні позиції замовлення, ID не отримано.");
+                }
             }
         }
+
+        // логіка створення завдання для кухні
+        if (newOrderItemId != -1) {
+            // Отримуємо орієнтовний час приготування для цієї страви з menu_cooking_times
+            int estimatedCookingTime = kitchenService.getEstimatedCookingTimeForMenuItem(orderItem.getMenuItemId());
+            if (estimatedCookingTime == 0) {
+                // Якщо для цієї страви час приготування не встановлено, використовуємо значення за замовчуванням
+                System.out.println("Попередження: Час приготування для страви ID " + orderItem.getMenuItemId() + " не знайдено. Встановлюємо 20 хвилин за замовчуванням.");
+                estimatedCookingTime = 20; // Це значення може бути конфігурованим
+            }
+
+            // --- ВИПРАВЛЕНО ТУТ ---
+            // newOrderItemId тепер є orderItemId
+            // priority встановлено на 1 як значення за замовчуванням
+            boolean taskCreated = kitchenService.createKitchenTask(newOrderItemId, 1, estimatedCookingTime);
+
+            if (!taskCreated) {
+                System.err.println("Помилка: Не вдалося створити кухонне завдання для order_item ID: " + newOrderItemId);
+                // Тут може знадобитися додаткова логіка:
+                // - Логування більш серйозної помилки
+                // - Можливо, відкат транзакції для всього замовлення
+                // - Повідомлення користувачу
+                throw new SQLException("Не вдалося створити кухонне завдання для позиції замовлення.");
+            }
+        }
+
         return orderItem;
     }
+
     public List<OrderItem> getOrderItemsByOrderId(int orderId) throws SQLException {
         List<OrderItem> orderItems = new ArrayList<>();
         String query = "SELECT id, order_id, menu_item_id, quantity, price_at_order FROM order_items WHERE order_id = ?";
