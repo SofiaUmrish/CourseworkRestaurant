@@ -31,12 +31,6 @@ public class Employee {
 
     @Override
     public String toString() {
-        return "Employee{" +
-                "id=" + id +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", position=" + position +
-                // пароль не виводимо у toString з міркувань безпеки
-                '}';
+        return getFirstName() + " " + getLastName() + " (" + getPosition().getName() + ")";
     }
 }

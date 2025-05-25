@@ -148,7 +148,7 @@ public class MainController {
                 Scene scene = new Scene(view);
 
                 // Додаємо стиль, якщо є
-                String cssPath = "/styles/MainStyle.css";
+                String cssPath = "/styles/InventoryStyle.css";
                 if (getClass().getResource(cssPath) != null) {
                     scene.getStylesheets().add(getClass().getResource(cssPath).toExternalForm());
                 }
