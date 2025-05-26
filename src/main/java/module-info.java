@@ -31,7 +31,7 @@ module org.example.restaurant_management_system {
 
     opens org.example.restaurant_management_system.model to javafx.base;
 
-
+    opens org.example.restaurant_management_system.service to javafx.base;
 
     //exports org.example.restaurant_management_system.service;
 

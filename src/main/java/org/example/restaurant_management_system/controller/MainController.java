@@ -176,7 +176,6 @@ public class MainController {
 
                 Scene scene = new Scene(view);
 
-                // Шлях до першого CSS файлу
                 String inventoryCssPath = "/styles/InventoryStyle.css";
                 if (getClass().getResource(inventoryCssPath) != null) {
                     scene.getStylesheets().add(getClass().getResource(inventoryCssPath).toExternalForm());
@@ -185,8 +184,7 @@ public class MainController {
                     System.err.println("CSS файл не знайдено: " + inventoryCssPath);
                 }
 
-                // Шлях до другого CSS файлу (KitchenStyle.css)
-                String kitchenCssPath = "/styles/KitchenStyle.css"; // ПЕРЕВІРТЕ ШЛЯХ ДО ВАШОГО CSS ФАЙЛУ
+                String kitchenCssPath = "/styles/KitchenStyle.css";
                 if (getClass().getResource(kitchenCssPath) != null) {
                     scene.getStylesheets().add(getClass().getResource(kitchenCssPath).toExternalForm());
                     System.out.println("Завантажено CSS: " + kitchenCssPath);
@@ -239,15 +237,49 @@ public class MainController {
     }
 
 
+
     @FXML
     public void openReportingView(ActionEvent event) {
         if (employee != null && (
                 employee.getPosition().getName().equalsIgnoreCase("Аналітик") ||
                         employee.getPosition().getName().equalsIgnoreCase("Менеджер")
         )) {
-            loadView("view/ReportingView.fxml", "Звітність та Аналітика");
+            System.out.println("Спроба відкрити ReportingView.fxml");
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ReportingView.fxml"));
+                Parent view = loader.load();
+
+                Scene scene = new Scene(view);
+
+                String inventoryCssPath = "/styles/InventoryStyle.css";
+                if (getClass().getResource(inventoryCssPath) != null) {
+                    scene.getStylesheets().add(getClass().getResource(inventoryCssPath).toExternalForm());
+                    System.out.println("Завантажено CSS: " + inventoryCssPath);
+                } else {
+                    System.err.println("CSS файл не знайдено: " + inventoryCssPath);
+                }
+
+                String kitchenCssPath = "/styles/ReportingStyle.css";
+                if (getClass().getResource(kitchenCssPath) != null) {
+                    scene.getStylesheets().add(getClass().getResource(kitchenCssPath).toExternalForm());
+                    System.out.println("Завантажено CSS: " + kitchenCssPath);
+                } else {
+                    System.err.println("CSS файл не знайдено: " + kitchenCssPath);
+                }
+
+
+                Stage stage = new Stage();
+                stage.setTitle("Звітність та Аналітика");
+                stage.setScene(scene);
+                stage.show();
+
+            } catch (IOException e) {
+                System.err.println("Не вдалося завантажити ReportingView.fxml");
+                e.printStackTrace();
+            }
         }
     }
+
 
     @FXML
     public void openMenuView(ActionEvent event) {

@@ -73,7 +73,7 @@ public class KitchenController {
 
         // колонки дій(зміни статусу, пріоритету)
         actionsCol.setCellFactory(param -> new TableCell<>() {
-            private final Button statusButton = new Button("Взяти в роботу");
+            private final Button statusButton = new Button("Почати");
             private final Button priorityUpButton = new Button("↑");
             private final Button priorityDownButton = new Button("↓");
 
@@ -165,7 +165,7 @@ public class KitchenController {
 
             private String getStatusButtonText(String status) {
                 return switch (status) {
-                    case "В очікуванні": yield "Взяти в роботу";
+                    case "В очікуванні": yield "Почати";
                     case "В роботі": yield "Завершити";
                     case "Готово": yield "Завершено"; // Текст, коли завдання виконано
                     case "Скасовано": yield "Відновити"; // Можливість відновити скасоване завдання
@@ -223,10 +223,10 @@ public class KitchenController {
         if ("Пріоритет".equals(selectedSortBy)) {
             currentTasks.sort(Comparator.comparing(KitchenTask::getPriority));
         } else if ("Час замовлення (від старого)".equals(selectedSortBy)) {
-            // Сортуємо за часом початку приготування, nullsLast для завдань "В очікуванні"
+
             currentTasks.sort(Comparator.comparing(KitchenTask::getStartCookingTime, Comparator.nullsLast(Comparator.naturalOrder())));
         } else if ("Час замовлення (від нового)".equals(selectedSortBy)) {
-            // Сортуємо за часом початку приготування, nullsFirst для завдань "В очікуванні"
+
             currentTasks.sort(Comparator.comparing(KitchenTask::getStartCookingTime, Comparator.nullsFirst(Comparator.reverseOrder())));
         }
         System.out.println("  KitchenController: Завдань після сортування: " + currentTasks.size());

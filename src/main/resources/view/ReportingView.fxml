@@ -1,14 +1,104 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="view.ReportingView"
-            prefHeight="400.0" prefWidth="600.0">
+<VBox fx:controller="org.example.restaurant_management_system.controller.ReportingController"
+      xmlns:fx="http://javafx.com/fxml/1"
+      alignment="TOP_CENTER" spacing="20"
+      prefHeight="680.0" prefWidth="1000.0"
+      styleClass="root">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
 
-</AnchorPane>
+    <Label text="Звітність та аналітика" styleClass="title-label">
+        <VBox.margin>
+            <Insets top="30"/> </VBox.margin>
+    </Label>
+
+    <HBox alignment="CENTER" spacing="10">
+        <Button text="Звіт про продажі" onAction="#showSalesSection" styleClass="nav-button"/>
+        <Button text="Рейтинг популярних позицій" onAction="#showPopularitySection" styleClass="nav-button"/>
+        <Button text="Звіт про витрати та прибуток" onAction="#showExpensesSection" styleClass="nav-button"/>
+        <VBox.margin>
+            <Insets bottom="30"/> </VBox.margin>
+    </HBox>
+
+    <VBox fx:id="salesSection" alignment="TOP_CENTER" spacing="10" visible="true" managed="true">
+        <HBox alignment="CENTER" spacing="10">
+            <Label text="Від:" styleClass="filter-label"/>
+            <DatePicker fx:id="salesStartDatePicker" styleClass="date-picker"/>
+            <Label text="До:" styleClass="filter-label"/>
+            <DatePicker fx:id="salesEndDatePicker" styleClass="date-picker"/>
+            <Label text="Період:" styleClass="filter-label"/>
+            <ComboBox fx:id="salesPeriodComboBox" styleClass="filter-combo-box"/>
+            <Button fx:id="generateSalesButton" text="Згенерувати звіт" onAction="#handleGenerateSales"
+                    styleClass="generate-button"/>
+        </HBox>
+        <HBox alignment="CENTER" spacing="10">
+            <Label text="Категорія:" styleClass="filter-label"/>
+            <ComboBox fx:id="salesCategoryComboBox" styleClass="filter-combo-box"/>
+            <Label text="Позиція меню:" styleClass="filter-label"/>
+            <ComboBox fx:id="salesMenuItemComboBox" styleClass="filter-combo-box"/>
+        </HBox>
+        <HBox alignment="CENTER" spacing="10">
+            <Label text="Офіціант:" styleClass="filter-label"/>
+            <ComboBox fx:id="salesEmployeeComboBox" styleClass="filter-combo-box"/>
+        </HBox>
+        <StackPane alignment="CENTER" VBox.vgrow="ALWAYS">
+            <TableView fx:id="salesTableView" prefHeight="300" maxWidth="800"
+                       styleClass="report-table">
+                <columns>
+                    <TableColumn fx:id="salesDateColumn" text="Дата/Період" prefWidth="150"/>
+                    <TableColumn fx:id="salesCategoryCol" text="Категорія" prefWidth="150"/>
+                    <TableColumn fx:id="salesMenuItemCol" text="Позиція меню" prefWidth="200"/>
+                    <TableColumn fx:id="salesEmployeeCol" text="Офіціант" prefWidth="150"/>
+                    <TableColumn fx:id="salesTotalAmountCol" text="Загальна сума" prefWidth="150"/>
+                </columns>
+            </TableView>
+        </StackPane>
+    </VBox>
+
+    <VBox fx:id="popularitySection" alignment="TOP_CENTER" spacing="10" visible="false" managed="false">
+        <HBox alignment="CENTER" spacing="10">
+            <Label text="Від:" styleClass="filter-label"/>
+            <DatePicker fx:id="popularityStartDatePicker" styleClass="date-picker"/>
+            <Label text="До:" styleClass="filter-label"/>
+            <DatePicker fx:id="popularityEndDatePicker" styleClass="date-picker"/>
+            <Button fx:id="generatePopularityButton" text="Згенерувати рейтинг"
+                    onAction="#handleGeneratePopularity" styleClass="generate-button"/>
+
+        </HBox>
+        <StackPane alignment="CENTER" VBox.vgrow="ALWAYS">
+            <TableView fx:id="popularityTableView" prefHeight="300" maxWidth="500" styleClass="report-table">
+                <columns>
+                    <TableColumn fx:id="popularityMenuItemCol" text="Позиція меню" prefWidth="300"/>
+                    <TableColumn fx:id="popularityQuantityCol" text="Кількість продано" prefWidth="200"/>
+                </columns>
+            </TableView>
+        </StackPane>
+    </VBox>
+
+    <VBox fx:id="expensesSection" alignment="TOP_CENTER" spacing="10" visible="false" managed="false">
+        <HBox alignment="CENTER" spacing="10">
+            <Label text="Від:" styleClass="filter-label"/>
+            <DatePicker fx:id="expensesStartDatePicker" styleClass="date-picker"/>
+            <Label text="До:" styleClass="filter-label"/>
+            <DatePicker fx:id="expensesEndDatePicker" styleClass="date-picker"/>
+            <Button fx:id="generateExpensesButton" text="Згенерувати звіт" onAction="#handleGenerateExpenses" styleClass="generate-button"/>
+        </HBox>
+        <VBox alignment="CENTER_LEFT" spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Label fx:id="totalSalesLabel" styleClass="summary-label"/>
+            <Label fx:id="procurementCostsLabel" styleClass="summary-label"/>
+            <Label fx:id="maintenanceCostsLabel" styleClass="summary-label"/>
+            <Label fx:id="totalExpensesLabel" styleClass="summary-label"/>
+            <Label fx:id="netProfitLabel" styleClass="profit-label"/>
+        </VBox>
+    </VBox>
+
+</VBox>
