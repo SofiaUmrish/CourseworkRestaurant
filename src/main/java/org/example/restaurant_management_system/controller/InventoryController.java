@@ -24,7 +24,12 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class InventoryController {
+
+    private static final Logger LOGGER = LogManager.getLogger(InventoryController.class);
 
     // для управління СКЛАДОМ
     @FXML private TableView<Ingredient> ingredientTable;
@@ -59,21 +64,24 @@ public class InventoryController {
 
 
     private InventoryService inventoryService;
-    private ObservableList<Ingredient> masterIngredientsList = FXCollections.observableArrayList(); // усі інгредієнти
+    private ObservableList<Ingredient> masterIngredientsList = FXCollections.observableArrayList();
     private FilteredList<Ingredient> filteredIngredients;
     private SortedList<Ingredient> sortedIngredients;
 
-    private ObservableList<MenuItem> masterMenuItemsList = FXCollections.observableArrayList(); // усі страви
-    private ObservableList<MenuItemIngredient> currentRecipeIngredientsList = FXCollections.observableArrayList(); // інгредієнти поточного рецепту
+    private ObservableList<MenuItem> masterMenuItemsList = FXCollections.observableArrayList();
+    private ObservableList<MenuItemIngredient> currentRecipeIngredientsList = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
+        LOGGER.info("Ініціалізація InventoryController.");
         try {
             Connection dbConnection = DatabaseConnection.getConnection();
             this.inventoryService = new InventoryService(dbConnection);
+            LOGGER.debug("З'єднання з базою даних для InventoryService встановлено.");
         } catch (SQLException e) {
-            showAlert("Помилка підключення до БД", "Не вдалося встановити з'єднання з базою даних для інвентаризації: " + e.getMessage());
-            e.printStackTrace();
+            LOGGER.fatal("Помилка підключення до БД для InventoryController: {}", e.getMessage(), e);
+            showAlert("Помилка підключення до БД", "Не вдалося встановити з'єднання з базою даних для інвентаризації: "
+                    + e.getMessage());
             System.exit(1);
         }
 
@@ -82,16 +90,17 @@ public class InventoryController {
         unitColumn.setCellValueFactory(cellData -> cellData.getValue().unitProperty());
         expirationColumn.setCellValueFactory(cellData -> cellData.getValue().expirationDateProperty());
         stockColumn.setCellValueFactory(cellData -> cellData.getValue().currentStockProperty().asObject());
+        LOGGER.debug("Налаштовано фабрики значень для колонок таблиці інгредієнтів.");
 
         ingredientTable.setPlaceholder(new Label("Немає інгредієнтів"));
 
-        // жирний шрифт для деяких термінів придатності
         expirationColumn.setCellFactory(getExpirationHighlightingFactory());
 
         filteredIngredients = new FilteredList<>(masterIngredientsList, p -> true);
         sortedIngredients = new SortedList<>(filteredIngredients);
         sortedIngredients.comparatorProperty().bind(ingredientTable.comparatorProperty());
         ingredientTable.setItems(sortedIngredients);
+        LOGGER.debug("Налаштовано фільтрацію та сортування для таблиці інгредієнтів.");
 
         ingredientTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
@@ -99,17 +108,22 @@ public class InventoryController {
                 inputUnitField.setText(newSelection.getUnit());
                 inputExpirationDatePicker.setValue(newSelection.getExpirationDate());
                 inputQuantityField.setText(String.valueOf(newSelection.getCurrentStock()));
-
-                messageLabel.setText(""); // очищення повідомлення при виборі нового елемента
+                messageLabel.setText("");
+                LOGGER.debug("Обрано інгредієнт '{}' у таблиці. Поля вводу оновлено.",
+                        newSelection.getName());
             } else {
-                clearInputFieldsForStock(); // очищення поля для СКЛАДУ
+                clearInputFieldsForStock();
+                LOGGER.debug("Знято виділення з інгредієнта. Поля вводу для складу очищено.");
             }
         });
 
-        // фільтр складу
-        filterChoiceBox.setItems(FXCollections.observableArrayList("Усі інгредієнти", "Прострочені", "Скоро зіпсуються (7 днів)"));
+        filterChoiceBox.setItems(FXCollections.observableArrayList("Усі інгредієнти",
+                "Прострочені", "Скоро зіпсуються (7 днів)"));
         filterChoiceBox.setValue("Усі інгредієнти");
-        filterChoiceBox.valueProperty().addListener((observable, oldValue, newValue) -> applyStockFilter());
+        filterChoiceBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            LOGGER.debug("Змінено фільтр складу з '{}' на '{}'.", oldValue, newValue);
+            applyStockFilter();
+        });
 
         // таблиця РЕЦЕПТІВ
         recipeIngredientTable.setItems(currentRecipeIngredientsList);
@@ -125,19 +139,24 @@ public class InventoryController {
             }
             return new SimpleStringProperty("N/A");
         });
-        recipeIngredientQuantityColumn.setCellValueFactory(cellData -> cellData.getValue().quantityPerUnitProperty().asObject());
+        recipeIngredientQuantityColumn.setCellValueFactory(cellData ->
+                cellData.getValue().quantityPerUnitProperty().asObject());
+        LOGGER.debug("Налаштовано фабрики значень для колонок таблиці інгредієнтів рецепту.");
 
         recipeIngredientTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 if (newSelection.getIngredient() != null) {
                     ingredientForRecipeComboBox.getSelectionModel().select(newSelection.getIngredient());
                     quantityForRecipeField.setText(String.valueOf(newSelection.getQuantityPerUnit()));
-
+                    LOGGER.debug("Обрано інгредієнт '{}' у таблиці рецепту. Поля вводу оновлено.",
+                            newSelection.getIngredient().getName());
                 } else {
                     clearInputFieldsForRecipe();
+                    LOGGER.debug("Обрано порожній інгредієнт у таблиці рецепту. Поля вводу для рецепту очищено.");
                 }
             } else {
-                clearInputFieldsForRecipe(); // очищення поля для РЕЦЕПТУ
+                clearInputFieldsForRecipe();
+                LOGGER.debug("Знято виділення з інгредієнта рецепту. Поля вводу для рецепту очищено.");
             }
 
         });
@@ -148,50 +167,60 @@ public class InventoryController {
         menuItemRecipeComboBox.setItems(masterMenuItemsList);
         menuItemRecipeComboBox.setPromptText("Оберіть страву для рецепту");
         menuItemRecipeComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null && newSelection.getId() != 0) { // перевірка на пустий MenuItem
-
+            if (newSelection != null && newSelection.getId() != 0) {
+                LOGGER.debug("Вибрано страву '{}' ({}) для рецепту.", newSelection.getName(), newSelection.getId());
                 try {
                     currentRecipeIngredientsList.setAll(inventoryService.getMenuItemIngredients(newSelection.getId()));
-
+                    LOGGER.info("Завантажено інгредієнти для рецепту страви '{}'.", newSelection.getName());
                 } catch (SQLException e) {
-                    showAlert("Помилка завантаження рецепту", "Не вдалося завантажити інгредієнти рецепту: " + e.getMessage());
-                    e.printStackTrace();
+                    LOGGER.error("Помилка завантаження інгредієнтів для рецепту страви '{}': {}",
+                            newSelection.getName(), e.getMessage(), e);
+                    showAlert("Помилка завантаження рецепту", "Не вдалося завантажити інгредієнти рецепту: "
+                            + e.getMessage());
                 }
             } else {
-
-                currentRecipeIngredientsList.clear(); // очищення таблиці рецептів
-                clearInputFieldsForRecipe(); // очищення поля для рецепту
+                LOGGER.debug("Виділення страви для рецепту знято або обрано 'Не обрано'.");
+                currentRecipeIngredientsList.clear();
+                clearInputFieldsForRecipe();
             }
         });
         // Виберіть інгредієнт
         ingredientForRecipeComboBox.setItems(masterIngredientsList);
         ingredientForRecipeComboBox.setPromptText("Виберіть інгредієнт для рецепту");
+        LOGGER.debug("Налаштовано вибір страв та інгредієнтів для рецептів.");
 
-        // початкове завантаження даних
         loadIngredientsData();
+        LOGGER.info("Ініціалізація InventoryController завершена.");
     }
 
     // ЗАВАНТАЖЕННЯ ДАНИХ
     private void loadIngredientsData() {
+        LOGGER.info("Завантаження даних інгредієнтів.");
         try {
             masterIngredientsList.clear();
             masterIngredientsList.addAll(inventoryService.getAllIngredientsWithStock());
             messageLabel.setText("");
             applyStockFilter();
+            LOGGER.info("Дані інгредієнтів успішно завантажено. Кількість: {}.",
+                    masterIngredientsList.size());
         } catch (SQLException e) {
+            LOGGER.error("Помилка завантаження даних інгредієнтів: {}", e.getMessage(), e);
             showAlert("Помилка завантаження", "Не вдалося завантажити дані інгредієнтів: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
     private void loadMenuItems() {
+        LOGGER.info("Завантаження даних страв.");
         try {
             masterMenuItemsList.clear();
-            masterMenuItemsList.add(new MenuItem(0, "Не обрано", 0, 0.0, false, false, false));
+            masterMenuItemsList.add(new MenuItem(0, "Не обрано", 0, 0.0,
+                    false, false, false));
             masterMenuItemsList.addAll(inventoryService.getAllMenuItems());
+            LOGGER.info("Дані страв успішно завантажено. Кількість: {}.",
+                    masterMenuItemsList.size());
         } catch (SQLException e) {
+            LOGGER.error("Помилка завантаження даних страв: {}", e.getMessage(), e);
             showAlert("Помилка завантаження меню", "Не вдалося завантажити список страв: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
@@ -203,6 +232,7 @@ public class InventoryController {
         inputExpirationDatePicker.setValue(null);
         ingredientTable.getSelectionModel().clearSelection();
         messageLabel.setText("");
+        LOGGER.debug("Поля вводу для секції 'Склад' очищено.");
     }
 
     private void clearInputFieldsForRecipe() {
@@ -210,17 +240,18 @@ public class InventoryController {
         quantityForRecipeField.clear();
         recipeIngredientTable.getSelectionModel().clearSelection();
         messageLabel.setText("");
+        LOGGER.debug("Поля вводу для секції 'Рецепти' очищено.");
     }
 
     // ФІЛЬТРАЦІЯ СКЛАДУ
     private void applyStockFilter() {
         String currentStockFilterType = filterChoiceBox.getValue();
+        LOGGER.debug("Застосування фільтра складу: {}.", currentStockFilterType);
 
         Predicate<Ingredient> stockFilterPredicate = ingredient -> {
             LocalDate today = LocalDate.now();
             LocalDate sevenDaysFromNow = today.plusDays(7);
 
-            // Застосовуємо фільтр складу
             switch (currentStockFilterType) {
                 case "Усі інгредієнти":
                     return true;
@@ -231,11 +262,12 @@ public class InventoryController {
                             (ingredient.getExpirationDate().isAfter(today.minusDays(1)) &&
                                     ingredient.getExpirationDate().isBefore(sevenDaysFromNow.plusDays(1)));
                 default:
-                    return true; // За замовчуванням показуємо все
+                    return true;
             }
         };
         filteredIngredients.setPredicate(stockFilterPredicate);
-        ingredientTable.refresh(); // Оновлюємо таблицю
+        ingredientTable.refresh();
+        LOGGER.debug("Фільтр складу оновлено. Таблиця інгредієнтів оновлена.");
     }
 
 
@@ -247,10 +279,14 @@ public class InventoryController {
         String unitInput = inputUnitField.getText().trim();
         String qtyInput = inputQuantityField.getText().trim();
         LocalDate expirationDate = inputExpirationDatePicker.getValue();
+        LOGGER.info("Спроба додати/оновити інгредієнт: Назва='{}', Кількість='{}', " +
+                        "Одиниця='{}', Термін придатності='{}'.",
+                nameInput, qtyInput, unitInput, expirationDate);
 
         if (nameInput.isEmpty() || unitInput.isEmpty()) {
             messageLabel.setTextFill(Color.PINK);
             messageLabel.setText("Заповніть поля: Назва, Одиниці.");
+            LOGGER.warn("Відхилено додавання/оновлення: Відсутні обов'язкові поля (Назва, Одиниці).");
             return;
         }
 
@@ -261,6 +297,7 @@ public class InventoryController {
                 if (qty < 0) {
                     messageLabel.setTextFill(Color.PINK);
                     messageLabel.setText("Кількість запасу не може бути від'ємною.");
+                    LOGGER.warn("Відхилено додавання/оновлення: Від'ємна кількість запасу: {}.", qty);
                     return;
                 }
             }
@@ -271,14 +308,15 @@ public class InventoryController {
                     .orElse(null);
 
             if (existingIngredient != null) {
-
-                // оновлення існуючого інгредієнта
+                LOGGER.debug("Інгредієнт '{}' вже існує. Спроба оновити його.", nameInput);
                 StringBuilder statusMessage = new StringBuilder();
                 boolean changed = false;
 
                 if (!existingIngredient.getUnit().equalsIgnoreCase(unitInput)) {
                     messageLabel.setTextFill(Color.PINK);
                     messageLabel.setText("Зміна одиниць виміру для існуючого інгредієнта не підтримується через цей інтерфейс.");
+                    LOGGER.warn("Відхилено оновлення: Спроба змінити одиниці виміру для існуючого інгредієнта '{}'.",
+                            nameInput);
                     return;
                 }
 
@@ -286,6 +324,8 @@ public class InventoryController {
                     inventoryService.updateIngredientExpiration(existingIngredient.getId(), expirationDate);
                     statusMessage.append("Термін придатності оновлено; ");
                     changed = true;
+                    LOGGER.info("Оновлено термін придатності для '{}' на {}.",
+                            nameInput, expirationDate);
                 }
 
                 if (qty > 0) {
@@ -293,25 +333,32 @@ public class InventoryController {
                     inventoryService.addStockMovement(income);
                     statusMessage.append("Запас додано (").append(qty).append(" ").append(existingIngredient.getUnit()).append("); ");
                     changed = true;
+                    LOGGER.info("Додано запас {} {} для '{}'.",
+                            qty, existingIngredient.getUnit(), nameInput);
                 }
 
                 if (changed) {
                     messageLabel.setTextFill(Color.PINK);
-                    messageLabel.setText(statusMessage.toString().trim().replaceAll(";$", "") + " для '" + nameInput + "'.");
+                    messageLabel.setText(statusMessage.toString().trim().replaceAll(";$", "")
+                            + " для '" + nameInput + "'.");
                 } else {
                     messageLabel.setTextFill(Color.PINK);
                     messageLabel.setText("Нічого не змінено для '" + nameInput + "'.");
+                    LOGGER.info("Нічого не змінено для існуючого інгредієнта '{}'.", nameInput);
                 }
             } else {
-                // додавання нового інгредієнта
+                LOGGER.debug("Інгредієнт '{}' не існує. Спроба створити новий.", nameInput);
                 if (qty == 0 && qtyInput.isEmpty()) {
                     messageLabel.setTextFill(Color.PINK);
                     messageLabel.setText("Для нового інгредієнта необхідно вказати початковий запас (Кількість).");
+                    LOGGER.warn("Відхилено створення нового інгредієнта: Відсутній початковий запас.");
                     return;
                 }
                 inventoryService.createNewIngredient(nameInput, unitInput, qty, expirationDate);
                 messageLabel.setTextFill(Color.PINK);
                 messageLabel.setText("Новий інгредієнт '" + nameInput + "' успішно додано.");
+                LOGGER.info("Новий інгредієнт '{}' успішно додано з запасом {} {}.",
+                        nameInput, qty, unitInput);
             }
 
             loadIngredientsData();
@@ -320,27 +367,34 @@ public class InventoryController {
         } catch (NumberFormatException e) {
             messageLabel.setTextFill(Color.PINK);
             messageLabel.setText("Невірний формат кількості. Введіть число.");
+            LOGGER.error("Помилка формату кількості при додаванні/оновленні інгредієнта: {}", qtyInput, e);
         } catch (SQLException e) {
             messageLabel.setTextFill(Color.PINK);
             messageLabel.setText("Помилка додавання/оновлення інгредієнта: " + e.getMessage());
-            e.printStackTrace();
+            LOGGER.error("Помилка SQL при додаванні/оновленні інгредієнта '{}': {}",
+                    nameInput, e.getMessage(), e);
         }
     }
 
-// КНОПКИ для списання продукту, перевірки зіпсованих продуктів і їх списання
+    // КНОПКИ для списання продукту, перевірки зіпсованих продуктів і їх списання
     @FXML
     private void handleUseIngredient() {
         Ingredient selectedIngredient = ingredientTable.getSelectionModel().getSelectedItem();
+        String qtyInput = inputQuantityField.getText().trim();
+        LOGGER.info("Спроба списати інгредієнт. Обраний інгредієнт: {}, Кількість: '{}'.",
+                (selectedIngredient != null ? selectedIngredient.getName() : "null"), qtyInput);
+
         if (selectedIngredient == null) {
             messageLabel.setTextFill(Color.PINK);
             messageLabel.setText("Виберіть інгредієнт для списання.");
+            LOGGER.warn("Відхилено списання: Не обрано інгредієнт.");
             return;
         }
 
-        String qtyInput = inputQuantityField.getText().trim();
         if (qtyInput.isEmpty()) {
             messageLabel.setTextFill(Color.PINK);
             messageLabel.setText("Введіть кількість для списання.");
+            LOGGER.warn("Відхилено списання: Не вказано кількість.");
             return;
         }
 
@@ -349,13 +403,18 @@ public class InventoryController {
             if (qtyToUse <= 0) {
                 messageLabel.setTextFill(Color.PINK);
                 messageLabel.setText("Кількість має бути позитивним числом.");
+                LOGGER.warn("Відхилено списання: Кількість для списання не є позитивною: {}.",
+                        qtyToUse);
                 return;
             }
 
             double currentStock = inventoryService.calculateCurrentStock(selectedIngredient.getId());
             if (currentStock < qtyToUse) {
                 messageLabel.setTextFill(Color.PINK);
-                messageLabel.setText("Недостатньо " + selectedIngredient.getName() + " на складі. Доступно: " + currentStock + " " + selectedIngredient.getUnit());
+                messageLabel.setText("Недостатньо " + selectedIngredient.getName() + " на складі. Доступно: "
+                        + currentStock + " " + selectedIngredient.getUnit());
+                LOGGER.warn("Відхилено списання: Недостатньо '{}' на складі. Доступно: {}, Списання: {}.",
+                        selectedIngredient.getName(), currentStock, qtyToUse);
                 return;
             }
 
@@ -366,14 +425,19 @@ public class InventoryController {
             clearInputFieldsForStock();
 
             messageLabel.setTextFill(Color.PINK);
-            messageLabel.setText("Успішно списано " + qtyToUse + " " + selectedIngredient.getUnit() + " з " + selectedIngredient.getName());
+            messageLabel.setText("Успішно списано " + qtyToUse + " " + selectedIngredient.getUnit()
+                    + " з " + selectedIngredient.getName());
+            LOGGER.info("Успішно списано {} {} з '{}'.", qtyToUse,
+                    selectedIngredient.getUnit(), selectedIngredient.getName());
         } catch (NumberFormatException e) {
             messageLabel.setTextFill(Color.PINK);
             messageLabel.setText("Невірний формат кількості. Введіть число.");
+            LOGGER.error("Помилка формату кількості при списанні: {}", qtyInput, e);
         } catch (SQLException e) {
             messageLabel.setTextFill(Color.PINK);
             messageLabel.setText("Помилка списання: " + e.getMessage());
-            e.printStackTrace();
+            LOGGER.error("Помилка SQL при списанні інгредієнта '{}': {}",
+                    selectedIngredient.getName(), e.getMessage(), e);
         }
     }
 
@@ -382,15 +446,18 @@ public class InventoryController {
         filterChoiceBox.setValue("Прострочені");
         messageLabel.setTextFill(Color.PINK);
         messageLabel.setText("Відфільтровано прострочені інгредієнти.");
+        LOGGER.info("Виконано дію 'Перевірити термін придатності'. Встановлено фільтр на 'Прострочені'.");
     }
 
     @FXML
     private void handleDiscardSpoiled() {
+        LOGGER.info("Спроба списати прострочені інгредієнти.");
         try {
             List<Ingredient> expired = inventoryService.getExpiredIngredients();
             if (expired.isEmpty()) {
                 messageLabel.setTextFill(Color.PINK);
                 messageLabel.setText("Немає прострочених інгредієнтів для списання.");
+                LOGGER.info("Немає прострочених інгредієнтів для списання.");
                 return;
             }
 
@@ -400,34 +467,44 @@ public class InventoryController {
                 if (currentStock > 0) {
                     Stock spoilage = new Stock(ing, -currentStock, "spoilage");
                     inventoryService.addStockMovement(spoilage);
-                    inventoryService.updateIngredientExpiration(ing.getId(), null); // Зберігаємо логіку обнулення терміну придатності
+                    inventoryService.updateIngredientExpiration(ing.getId(), null);
                     discardedCount++;
+                    LOGGER.info("Списано {} {} простроченого інгредієнта '{}'." +
+                                    " Термін придатності обнулено.",
+                            currentStock, ing.getUnit(), ing.getName());
                 }
             }
-            loadIngredientsData(); // Оновлюємо дані у таблиці
+            loadIngredientsData();
             messageLabel.setTextFill(Color.PINK);
             messageLabel.setText("Успішно списано " + discardedCount + " типів прострочених інгредієнтів.");
+            LOGGER.info("Успішно списано {} типів прострочених інгредієнтів.", discardedCount);
 
         } catch (SQLException e) {
             messageLabel.setTextFill(Color.PINK);
             messageLabel.setText("Помилка списання простроченого: " + e.getMessage());
-            e.printStackTrace();
+            LOGGER.error("Помилка SQL при списанні прострочених інгредієнтів: {}", e.getMessage(), e);
         }
     }
 
     // КНОПОКИ ДЛЯ РЕЦЕПТІВ
-    // додавання нового інгредієнта в рецепт
     @FXML
     private void handleAddIngredientToRecipe() {
         MenuItem selectedMenuItem = menuItemRecipeComboBox.getSelectionModel().getSelectedItem();
         Ingredient selectedIngredient = ingredientForRecipeComboBox.getSelectionModel().getSelectedItem();
+        LOGGER.info("Спроба додати/оновити інгредієнт в рецепті. Страва: {}," +
+                        " Інгредієнт: {}, Кількість: '{}'.",
+                (selectedMenuItem != null ? selectedMenuItem.getName() : "null"),
+                (selectedIngredient != null ? selectedIngredient.getName() : "null"),
+                quantityForRecipeField.getText());
 
         if (selectedMenuItem == null || selectedMenuItem.getId() == 0) {
             messageLabel.setText("Будь ласка, виберіть страву для рецепту.");
+            LOGGER.warn("Відхилено додавання до рецепту: Не обрано страву.");
             return;
         }
         if (selectedIngredient == null) {
             messageLabel.setText("Будь ласка, виберіть інгредієнт для додавання до рецепту.");
+            LOGGER.warn("Відхилено додавання до рецепту: Не обрано інгредієнт.");
             return;
         }
 
@@ -436,15 +513,17 @@ public class InventoryController {
             quantity = Double.parseDouble(quantityForRecipeField.getText().trim());
             if (quantity <= 0) {
                 messageLabel.setText("Кількість інгредієнта в рецепті повинна бути позитивною.");
+                LOGGER.warn("Відхилено додавання до рецепту: Кількість інгредієнта не є позитивною: {}.", quantity);
                 return;
             }
         } catch (NumberFormatException e) {
             messageLabel.setText("Будь ласка, введіть коректну кількість для рецепту.");
+            LOGGER.error("Помилка формату кількості для рецепту: {}",
+                    quantityForRecipeField.getText(), e);
             return;
         }
 
         try {
-            // перевірка чи інгредієнт вже є у рецепті
             MenuItemIngredient existingRecipeIngredient = null;
             for (MenuItemIngredient mii : currentRecipeIngredientsList) {
                 if (mii.getIngredient().getId() == selectedIngredient.getId()) {
@@ -454,43 +533,51 @@ public class InventoryController {
             }
 
             if (existingRecipeIngredient != null) {
-
-                // оновлення існуючого інгредієнта у рецепті
                 existingRecipeIngredient.setQuantityPerUnit(quantity);
                 inventoryService.updateMenuItemIngredient(existingRecipeIngredient);
-                messageLabel.setText(String.format("Кількість '%s' для страви '%s' оновлено.", selectedIngredient.getName(), selectedMenuItem.getName()));
+                messageLabel.setText(String.format("Кількість '%s' для страви '%s' оновлено.",
+                        selectedIngredient.getName(), selectedMenuItem.getName()));
+                LOGGER.info("Оновлено кількість інгредієнта '{}' в рецепті '{}' на {}.",
+                        selectedIngredient.getName(), selectedMenuItem.getName(), quantity);
             } else {
-                // Додати новий інгредієнт до рецепту
                 MenuItemIngredient newRecipeIngredient = new MenuItemIngredient(
-                        0, // id тимчасово 0, після запису в БД буде згенеровано
+                        0,
                         selectedMenuItem,
                         selectedIngredient,
                         quantity
                 );
                 inventoryService.addMenuItemIngredient(newRecipeIngredient);
-                messageLabel.setText(String.format("Інгредієнт '%s' додано до рецепту '%s'.", selectedIngredient.getName(), selectedMenuItem.getName()));
+                messageLabel.setText(String.format("Інгредієнт '%s' додано до рецепту '%s'.",
+                        selectedIngredient.getName(), selectedMenuItem.getName()));
+                LOGGER.info("Додано новий інгредієнт '{}' до рецепту '{}' з кількістю {}.",
+                        selectedIngredient.getName(), selectedMenuItem.getName(), quantity);
             }
-            // оновлення таблиці інгредієнтів рецепту
             currentRecipeIngredientsList.setAll(inventoryService.getMenuItemIngredients(selectedMenuItem.getId()));
             clearInputFieldsForRecipe();
         } catch (SQLException e) {
+            LOGGER.error("Помилка SQL при додаванні/оновленні інгредієнта '{}' в рецепті '{}': {}",
+                    selectedIngredient.getName(), selectedMenuItem.getName(), e.getMessage(), e);
             showAlert("Помилка БД", "Не вдалося додати/оновити інгредієнт в рецепті: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
-    // видалення інгредієнту з рецепта
     @FXML
     private void handleRemoveIngredientFromRecipe() {
         MenuItemIngredient selectedRecipeIngredient = recipeIngredientTable.getSelectionModel().getSelectedItem();
         MenuItem selectedMenuItem = menuItemRecipeComboBox.getSelectionModel().getSelectedItem();
+        LOGGER.info("Спроба видалити інгредієнт з рецепту. Обраний інгредієнт: {}, Страва: {}.",
+                (selectedRecipeIngredient != null && selectedRecipeIngredient.getIngredient() != null ?
+                        selectedRecipeIngredient.getIngredient().getName() : "null"),
+                (selectedMenuItem != null ? selectedMenuItem.getName() : "null"));
 
         if (selectedRecipeIngredient == null) {
             messageLabel.setText("Будь ласка, виберіть інгредієнт з рецепту, щоб видалити.");
+            LOGGER.warn("Відхилено видалення з рецепту: Не обрано інгредієнт.");
             return;
         }
         if (selectedMenuItem == null || selectedMenuItem.getId() == 0) {
             messageLabel.setText("Будь ласка, виберіть страву для рецепту.");
+            LOGGER.warn("Відхилено видалення з рецепту: Не обрано страву.");
             return;
         }
 
@@ -498,28 +585,27 @@ public class InventoryController {
             inventoryService.removeMenuItemIngredient(selectedRecipeIngredient.getId());
             messageLabel.setText(String.format("Інгредієнт '%s' видалено з рецепту '%s'.",
                     selectedRecipeIngredient.getIngredient().getName(), selectedMenuItem.getName()));
+            LOGGER.info("Інгредієнт '{}' успішно видалено з рецепту '{}'.",
+                    selectedRecipeIngredient.getIngredient().getName(), selectedMenuItem.getName());
 
-            // оновлення таблиці інгредієнтів рецепта
             currentRecipeIngredientsList.setAll(inventoryService.getMenuItemIngredients(selectedMenuItem.getId()));
             clearInputFieldsForRecipe();
         } catch (SQLException e) {
+            LOGGER.error("Помилка SQL при видаленні інгредієнта '{}' з рецепту '{}': {}",
+                    selectedRecipeIngredient.getIngredient().getName(), selectedMenuItem.getName(), e.getMessage(), e);
             showAlert("Помилка БД", "Не вдалося видалити інгредієнт з рецепту: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
-    // додаткові повідомлення
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
-
-
         alert.showAndWait();
+        LOGGER.warn("Відображено сповіщення про помилку: {} - {}", title, message);
     }
 
-    // виділення прострочених/тих що скоро прострочаться інгредієнтів
     private Callback<TableColumn<Ingredient, LocalDate>, TableCell<Ingredient, LocalDate>> getExpirationHighlightingFactory() {
         return column -> new TableCell<>() {
             @Override
@@ -538,9 +624,11 @@ public class InventoryController {
                     if (item.isBefore(today)) {
                         setTextFill(Color.PINK);
                         setStyle("-fx-font-weight: bold;");
+                        LOGGER.trace("Інгредієнт прострочений: {}", item);
                     } else if (item.isBefore(sevenDaysFromNowThreshold.plusDays(1))) {
                         setTextFill(Color.PINK);
                         setStyle("-fx-font-weight: bold;");
+                        LOGGER.trace("Термін придатності інгредієнта скоро закінчиться: {}", item);
                     } else {
                         setTextFill(Color.BLACK);
                         setStyle("");

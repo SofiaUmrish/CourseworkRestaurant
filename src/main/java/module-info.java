@@ -20,6 +20,8 @@ module org.example.restaurant_management_system {
 
     requires java.sql;
 
+    requires org.apache.logging.log4j;
+
 
 
 

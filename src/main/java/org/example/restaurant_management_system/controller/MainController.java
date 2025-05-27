@@ -14,7 +14,13 @@ import org.example.restaurant_management_system.model.Position;
 import java.io.IOException;
 import java.net.URL;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+
 public class MainController {
+
+    private static final Logger LOGGER = LogManager.getLogger(MainController.class);
 
     @FXML private Button ordersButton;
     @FXML private Button kitchenButton;
@@ -29,6 +35,9 @@ public class MainController {
 
     @FXML
     private void initialize() {
+        LOGGER.info("Ініціалізовано MainController.");
+        LOGGER.error("Тест критичної помилки для email!");
+
         usernameLabel.setVisible(false);
         logoutTopButton.setVisible(false);
 
@@ -46,19 +55,24 @@ public class MainController {
 
         usernameLabel.setText(positionName + ":\n\n" + employee.getFirstName() + " " + employee.getLastName());
         usernameLabel.setVisible(true);
+        LOGGER.info("Встановлено співробітника: {} {}", employee.getFirstName(), employee.getLastName());
 
         switch (positionName) {
             case "Кухар":
                 kitchenButton.setDisable(false);
+                LOGGER.info("Увімкнено кнопку кухні для Кухаря.");
                 break;
             case "Офіціант":
                 ordersButton.setDisable(false);
+                LOGGER.info("Увімкнено кнопку замовлень для Офіціанта.");
                 break;
             case "Комірник":
                 inventoryButton.setDisable(false);
+                LOGGER.info("Увімкнено кнопку інвентаризації для Комірника.");
                 break;
             case "Аналітик":
                 reportingButton.setDisable(false);
+                LOGGER.info("Увімкнено кнопку звітності для Аналітика.");
                 break;
             case "Менеджер":
                 ordersButton.setDisable(false);
@@ -66,7 +80,10 @@ public class MainController {
                 inventoryButton.setDisable(false);
                 reportingButton.setDisable(false);
                 menuButton.setDisable(false);
+                LOGGER.info("Увімкнено всі кнопки для Менеджера.");
                 break;
+            default:
+                LOGGER.warn("Невідома посада: {}", positionName);
         }
 
         loginTopButton.setVisible(false);
@@ -75,6 +92,7 @@ public class MainController {
 
     @FXML
     public void logoutAction(ActionEvent event) {
+        LOGGER.info("Ініційовано вихід із системи.");
         employee = null;
         usernameLabel.setText("");
         usernameLabel.setVisible(false);
@@ -87,6 +105,7 @@ public class MainController {
         inventoryButton.setDisable(true);
         reportingButton.setDisable(true);
         menuButton.setDisable(true);
+        LOGGER.info("Кнопки вимкнено після виходу.");
 
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/LoginView.fxml"));
@@ -97,9 +116,10 @@ public class MainController {
             Stage currentStage = (Stage) ((Button) event.getSource()).getScene().getWindow();
             currentStage.setTitle("Вхід до системи");
             currentStage.setScene(loginScene);
+            LOGGER.info("Перехід до LoginView.");
 
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Не вдалося завантажити LoginView.fxml під час виходу: {}", e.getMessage(), e);
         }
     }
 
@@ -107,6 +127,7 @@ public class MainController {
         try {
             URL fxmlUrl = getClass().getResource(fxmlPath);
             if (fxmlUrl == null) {
+                LOGGER.error("FXML не знайдено за шляхом: {}", fxmlPath);
                 System.err.println("FXML не знайдено за шляхом: " + fxmlPath);
                 return;
             }
@@ -119,14 +140,17 @@ public class MainController {
             URL cssUrl = getClass().getResource(cssPath);
             if (cssUrl != null) {
                 scene.getStylesheets().add(cssUrl.toExternalForm());
+            } else {
+                LOGGER.warn("MainStyle.css не знайдено за шляхом: {}", cssPath);
             }
 
             Stage stage = new Stage();
             stage.setTitle(title);
-            stage.setTitle(title);
             stage.setScene(scene);
             stage.show();
+            LOGGER.info("Завантажено вигляд: {} з заголовком: {}", fxmlPath, title);
         } catch (IOException e) {
+            LOGGER.error("Не вдалося завантажити вигляд {}: {}", fxmlPath, e.getMessage(), e);
             System.err.println("Не вдалося завантажити: " + fxmlPath);
             e.printStackTrace();
         }
@@ -138,6 +162,7 @@ public class MainController {
                 employee.getPosition().getName().equalsIgnoreCase("Офіціант") ||
                         employee.getPosition().getName().equalsIgnoreCase("Менеджер")
         )) {
+            LOGGER.info("Спроба відкрити OrderView.fxml для співробітника: {}", employee.getPosition().getName());
             System.out.println("Спроба відкрити OrderView.fxml");
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/OrderView.fxml"));
@@ -148,17 +173,25 @@ public class MainController {
                 String cssPath = "/styles/InventoryStyle.css";
                 if (getClass().getResource(cssPath) != null) {
                     scene.getStylesheets().add(getClass().getResource(cssPath).toExternalForm());
+                    LOGGER.debug("Завантажено CSS: {}", cssPath);
+                } else {
+                    LOGGER.warn("CSS файл не знайдено: {}", cssPath);
                 }
 
                 Stage stage = new Stage();
                 stage.setTitle("Управління Замовленнями");
                 stage.setScene(scene);
                 stage.show();
+                LOGGER.info("OrderView.fxml успішно відкрито.");
 
             } catch (IOException e) {
+                LOGGER.error("Не вдалося завантажити OrderView.fxml: {}", e.getMessage(), e);
                 System.err.println("Не вдалося завантажити OrderView.fxml");
                 e.printStackTrace();
             }
+        } else {
+            LOGGER.warn("Несанкціонована спроба відкрити OrdersView співробітником з посадою: {}",
+                    (employee != null ? employee.getPosition().getName() : "null"));
         }
     }
 
@@ -169,6 +202,7 @@ public class MainController {
                 employee.getPosition().getName().equalsIgnoreCase("Кухар") ||
                         employee.getPosition().getName().equalsIgnoreCase("Менеджер")
         )) {
+            LOGGER.info("Спроба відкрити KitchenView.fxml для співробітника: {}", employee.getPosition().getName());
             System.out.println("Спроба відкрити KitchenView.fxml");
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/KitchenView.fxml"));
@@ -179,16 +213,20 @@ public class MainController {
                 String inventoryCssPath = "/styles/InventoryStyle.css";
                 if (getClass().getResource(inventoryCssPath) != null) {
                     scene.getStylesheets().add(getClass().getResource(inventoryCssPath).toExternalForm());
+                    LOGGER.debug("Завантажено CSS: {}", inventoryCssPath);
                     System.out.println("Завантажено CSS: " + inventoryCssPath);
                 } else {
+                    LOGGER.warn("CSS файл не знайдено: {}", inventoryCssPath);
                     System.err.println("CSS файл не знайдено: " + inventoryCssPath);
                 }
 
                 String kitchenCssPath = "/styles/KitchenStyle.css";
                 if (getClass().getResource(kitchenCssPath) != null) {
                     scene.getStylesheets().add(getClass().getResource(kitchenCssPath).toExternalForm());
+                    LOGGER.debug("Завантажено CSS: {}", kitchenCssPath);
                     System.out.println("Завантажено CSS: " + kitchenCssPath);
                 } else {
+                    LOGGER.warn("CSS файл не знайдено: {}", kitchenCssPath);
                     System.err.println("CSS файл не знайдено: " + kitchenCssPath);
                 }
 
@@ -197,11 +235,16 @@ public class MainController {
                 stage.setTitle("Управління Кухнею");
                 stage.setScene(scene);
                 stage.show();
+                LOGGER.info("KitchenView.fxml успішно відкрито.");
 
             } catch (IOException e) {
+                LOGGER.error("Не вдалося завантажити KitchenView.fxml: {}", e.getMessage(), e);
                 System.err.println("Не вдалося завантажити KitchenView.fxml");
                 e.printStackTrace();
             }
+        } else {
+            LOGGER.warn("Несанкціонована спроба відкрити KitchenView співробітником з посадою: {}",
+                    (employee != null ? employee.getPosition().getName() : "null"));
         }
     }
 
@@ -212,6 +255,7 @@ public class MainController {
                 employee.getPosition().getName().equalsIgnoreCase("Комірник") ||
                         employee.getPosition().getName().equalsIgnoreCase("Менеджер")
         )) {
+            LOGGER.info("Спроба відкрити InventoryView.fxml для співробітника: {}", employee.getPosition().getName());
             System.out.println("Спроба відкрити InventoryView.fxml");
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/InventoryView.fxml"));
@@ -222,17 +266,25 @@ public class MainController {
                 String cssPath = "/styles/InventoryStyle.css";
                 if (getClass().getResource(cssPath) != null) {
                     scene.getStylesheets().add(getClass().getResource(cssPath).toExternalForm());
+                    LOGGER.debug("Завантажено CSS: {}", cssPath);
+                } else {
+                    LOGGER.warn("CSS файл не знайдено: {}", cssPath);
                 }
 
                 Stage stage = new Stage();
                 stage.setTitle("Облік складу і запасів ");
                 stage.setScene(scene);
                 stage.show();
+                LOGGER.info("InventoryView.fxml успішно відкрито.");
 
             } catch (IOException e) {
+                LOGGER.error("Не вдалося завантажити InventoryView.fxml: {}", e.getMessage(), e);
                 System.err.println("Не вдалося завантажити InventoryView.fxml");
                 e.printStackTrace();
             }
+        } else {
+            LOGGER.warn("Несанкціонована спроба відкрити InventoryView співробітником з посадою: {}",
+                    (employee != null ? employee.getPosition().getName() : "null"));
         }
     }
 
@@ -244,6 +296,7 @@ public class MainController {
                 employee.getPosition().getName().equalsIgnoreCase("Аналітик") ||
                         employee.getPosition().getName().equalsIgnoreCase("Менеджер")
         )) {
+            LOGGER.info("Спроба відкрити ReportingView.fxml для співробітника: {}", employee.getPosition().getName());
             System.out.println("Спроба відкрити ReportingView.fxml");
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ReportingView.fxml"));
@@ -254,17 +307,19 @@ public class MainController {
                 String inventoryCssPath = "/styles/InventoryStyle.css";
                 if (getClass().getResource(inventoryCssPath) != null) {
                     scene.getStylesheets().add(getClass().getResource(inventoryCssPath).toExternalForm());
+                    LOGGER.debug("Завантажено CSS: {}", inventoryCssPath);
                     System.out.println("Завантажено CSS: " + inventoryCssPath);
                 } else {
-                    System.err.println("CSS файл не знайдено: " + inventoryCssPath);
+                    LOGGER.warn("CSS файл не знайдено: {}", inventoryCssPath);
                 }
 
                 String kitchenCssPath = "/styles/ReportingStyle.css";
                 if (getClass().getResource(kitchenCssPath) != null) {
                     scene.getStylesheets().add(getClass().getResource(kitchenCssPath).toExternalForm());
+                    LOGGER.debug("Завантажено CSS: {}", kitchenCssPath);
                     System.out.println("Завантажено CSS: " + kitchenCssPath);
                 } else {
-                    System.err.println("CSS файл не знайдено: " + kitchenCssPath);
+                    LOGGER.warn("CSS файл не знайдено: {}", kitchenCssPath);
                 }
 
 
@@ -272,11 +327,16 @@ public class MainController {
                 stage.setTitle("Звітність та Аналітика");
                 stage.setScene(scene);
                 stage.show();
+                LOGGER.info("ReportingView.fxml успішно відкрито.");
 
             } catch (IOException e) {
+                LOGGER.error("Не вдалося завантажити ReportingView.fxml: {}", e.getMessage(), e);
                 System.err.println("Не вдалося завантажити ReportingView.fxml");
                 e.printStackTrace();
             }
+        } else {
+            LOGGER.warn("Несанкціонована спроба відкрити ReportingView співробітником з посадою: {}",
+                    (employee != null ? employee.getPosition().getName() : "null"));
         }
     }
 
@@ -285,8 +345,9 @@ public class MainController {
     public void openMenuView(ActionEvent event) {
         if (employee != null && (
 
-                        employee.getPosition().getName().equalsIgnoreCase("Менеджер")
+                employee.getPosition().getName().equalsIgnoreCase("Менеджер")
         )) {
+            LOGGER.info("Спроба відкрити MenuView.fxml для співробітника: {}", employee.getPosition().getName());
             System.out.println("Спроба відкрити MenuView.fxml");
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MenuView.fxml"));
@@ -297,17 +358,25 @@ public class MainController {
                 String cssPath = "/styles/MenuStyle.css";
                 if (getClass().getResource(cssPath) != null) {
                     scene.getStylesheets().add(getClass().getResource(cssPath).toExternalForm());
+                    LOGGER.debug("Завантажено CSS: {}", cssPath);
+                } else {
+                    LOGGER.warn("CSS файл не знайдено: {}", cssPath);
                 }
 
                 Stage stage = new Stage();
                 stage.setTitle("Управління Меню");
                 stage.setScene(scene);
                 stage.show();
+                LOGGER.info("MenuView.fxml успішно відкрито.");
 
             } catch (IOException e) {
+                LOGGER.error("Не вдалося завантажити MenuView.fxml: {}", e.getMessage(), e);
                 System.err.println("Не вдалося завантажити MenuView.fxml");
                 e.printStackTrace();
             }
+        } else {
+            LOGGER.warn("Несанкціонована спроба відкрити MenuView співробітником з посадою: {}",
+                    (employee != null ? employee.getPosition().getName() : "null"));
         }
     }
 
@@ -315,6 +384,7 @@ public class MainController {
 
     @FXML
     public void loginAction(ActionEvent event) {
+        LOGGER.info("Ініційовано дію входу.");
         loadView("view/LoginView.fxml", "Вхід до системи");
     }
 }

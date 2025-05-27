@@ -248,7 +248,7 @@ public class ReportingService {
     //щомісячні зарплати для всіх працівників
     private double calculateTotalMonthlySalariesBasedOnEmployeeCount() throws SQLException {
         double totalMonthlySalaries = 0.0;
-         String sql = "SELECT SUM(s.monthly_salary * (SELECT COUNT(e.id)" +
+        String sql = "SELECT SUM(s.monthly_salary * (SELECT COUNT(e.id)" +
                 " FROM employees e WHERE e.position_id = p.id))" +
                 " AS total_salaries " +
                 "FROM positions p " +

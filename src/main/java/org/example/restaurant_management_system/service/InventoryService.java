@@ -139,33 +139,6 @@ public class InventoryService {
         }
     }
 
-    // записує використання інгредієнтів для приготування страви
-    public void recordIngredientsUsageForMenuItem(int menuItemId, int quantity) throws SQLException {
-        List<MenuItemIngredient> ingredientsForMenuItem = getMenuItemIngredients(menuItemId);
-        for (MenuItemIngredient item : ingredientsForMenuItem) {
-            if (item.getIngredient() == null) {
-                Ingredient loadedIngredient = getIngredientById(item.getIngredientId());
-                if (loadedIngredient != null) {
-                    item.setIngredient(loadedIngredient);
-                } else {
-                    throw new SQLException("інгредієнт для пункту меню " + menuItemId + " (ingredient id: " + item.getIngredientId() + ") не знайдено або не завантажено.");
-                }
-            }
-
-            double totalUsed = item.getQuantityPerUnit() * quantity;
-            double currentStock = calculateCurrentStock(item.getIngredient().getId());
-            if (currentStock < totalUsed) {
-                throw new SQLException("недостатньо " + item.getIngredient().getName() + " на складі для приготування страви id " + menuItemId + ". доступно: " + currentStock + ", потрібно: " + totalUsed);
-            }
-
-            Stock expenseMovement = new Stock(
-                    item.getIngredient(),
-                    -totalUsed,
-                    "expense"
-            );
-            addStockMovement(expenseMovement);
-        }
-    }
 
     // отримує список всіх прострочених інгредієнтів з наявним запасом
     public List<Ingredient> getExpiredIngredients() throws SQLException {

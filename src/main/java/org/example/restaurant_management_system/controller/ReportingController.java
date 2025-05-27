@@ -12,7 +12,14 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
-public class ReportingController {
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+
+
+public class ReportingController  {
+
+    private static final Logger LOGGER = LogManager.getLogger(ReportingController.class);
 
     private ReportingService reportingService;
 
@@ -53,8 +60,10 @@ public class ReportingController {
     @FXML private Label netProfitLabel;
 
 
-    @FXML
+
     public void initialize() {
+        LOGGER.info("Ініціалізація ReportingController...");
+
         reportingService = new ReportingService();
 
         // Ініціалізація, як і раніше
@@ -84,10 +93,12 @@ public class ReportingController {
 
         //секція продажів за замовчуванням
         showSalesSection();
+        LOGGER.info("ReportingController успішно ініціалізовано.");
     }
 
     //завантаження фільтрів
     private void loadSalesFilters() {
+        LOGGER.info("Завантаження фільтрів для звіту про продажі...");
         new Thread(() -> {
             try {
                 List<String> categories = reportingService.getAllCategories();
@@ -107,10 +118,14 @@ public class ReportingController {
 
                     salesEmployeeComboBox.getItems().add(0, "Усі офіціанти");
                     salesEmployeeComboBox.getSelectionModel().select("Усі офіціанти");
+                    LOGGER.info("Фільтри для звіту про продажі завантажено та встановлено успішно.");
                 });
             } catch (SQLException e) {
+                LOGGER.error( "Помилка SQL при завантаженні фільтрів для продажів: " + e.getMessage(), e);
                 Platform.runLater(() -> showAlert(Alert.AlertType.ERROR, "Помилка завантаження фільтрів", "Не вдалося завантажити дані для фільтрів: " + e.getMessage()));
-                e.printStackTrace();
+            } catch (Exception e) { // Ловимо також загальні винятки
+                LOGGER.error("Невідома помилка при завантаженні фільтрів для продажів: " + e.getMessage(), e);
+                Platform.runLater(() -> showAlert(Alert.AlertType.ERROR, "Помилка завантаження фільтрів", "Не вдалося завантажити дані для фільтрів через невідому помилку."));
             }
         }).start();
     }
@@ -119,6 +134,7 @@ public class ReportingController {
     //методи для видимості секцій
     @FXML
     private void showSalesSection() {
+        LOGGER.info("Перемикання на секцію 'Звіт про продажі'.");
         salesSection.setVisible(true);
         salesSection.setManaged(true); //видимість у вікні
 
@@ -131,6 +147,7 @@ public class ReportingController {
 
     @FXML
     private void showPopularitySection() {
+        LOGGER.info("Перемикання на секцію 'Рейтинг популярних позицій'.");
         salesSection.setVisible(false);
         salesSection.setManaged(false);
 
@@ -143,6 +160,7 @@ public class ReportingController {
 
     @FXML
     private void showExpensesSection() {
+        LOGGER.info("Перемикання на секцію 'Звіт про витрати та прибуток'.");
         salesSection.setVisible(false);
         salesSection.setManaged(false);
 
@@ -156,6 +174,7 @@ public class ReportingController {
     //генерування продажів
     @FXML
     private void handleGenerateSales() {
+        LOGGER.info("Спроба згенерувати звіт про продажі.");
         LocalDate startDate = salesStartDatePicker.getValue();
         LocalDate endDate = salesEndDatePicker.getValue();
         String periodType = salesPeriodComboBox.getValue();
@@ -165,8 +184,14 @@ public class ReportingController {
 
         if (startDate == null || endDate == null || periodType == null) {
             showAlert(Alert.AlertType.WARNING, "Відсутні дані", "Будь ласка, оберіть початкову та кінцеву дати, а також тип періоду.");
+            LOGGER.error("Генерація звіту про продажі скасована: відсутні обов'язкові дані (дати або тип періоду).");
             return;
         }
+
+        // Логуємо обрані параметри фільтрації
+        LOGGER.info(String.format("Параметри звіту про продажі: Початок=%s, Кінець=%s, Період=%s, Категорія=%s, Позиція=%s, Офіціант=%s",
+                startDate, endDate, periodType, category, menuItem, employee));
+
 
         if ("Усі категорії".equals(category)) category = null;
         if ("Усі позиції".equals(menuItem)) menuItem = null;
@@ -175,42 +200,58 @@ public class ReportingController {
         try {
             List<ReportingService.SaleReportEntry> salesData = reportingService.getSalesByPeriod(startDate, endDate, periodType, category, menuItem, employee);
             salesTableView.setItems(FXCollections.observableArrayList(salesData));
+            LOGGER.info("Звіт про продажі успішно згенеровано. Кількість записів: " + salesData.size());
         } catch (SQLException e) {
+            LOGGER.error( "Помилка SQL при генерації звіту про продажі: " + e.getMessage(), e);
             showAlert(Alert.AlertType.ERROR, "Помилка генерації звіту", "Не вдалося згенерувати звіт про продажі: " + e.getMessage());
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOGGER.error("Невідома помилка при генерації звіту про продажі: " + e.getMessage(), e);
+            showAlert(Alert.AlertType.ERROR, "Помилка генерації звіту", "Не вдалося згенерувати звіт про продажі через невідому помилку.");
         }
     }
 
     //генерування популярних позицій з меню
     @FXML
     private void handleGeneratePopularity() {
+        LOGGER.info("Спроба згенерувати рейтинг популярних позицій.");
         LocalDate startDate = popularityStartDatePicker.getValue();
         LocalDate endDate = popularityEndDatePicker.getValue();
 
         if (startDate == null || endDate == null) {
             showAlert(Alert.AlertType.WARNING, "Відсутні дані", "Будь ласка, оберіть початкову та кінцеву дати.");
+            LOGGER.error("Генерація рейтингу популярності скасована: відсутні дати.");
             return;
         }
+
+        LOGGER.info(String.format("Параметри рейтингу популярності: Початок=%s, Кінець=%s", startDate, endDate));
 
         try {
             List<ReportingService.PopularMenuItemReportEntry> popularityData = reportingService.getPopularMenuItems(startDate, endDate);
             popularityTableView.setItems(FXCollections.observableArrayList(popularityData));
+            LOGGER.info("Рейтинг популярних позицій успішно згенеровано. Кількість записів: " + popularityData.size());
         } catch (SQLException e) {
+            LOGGER.error( "Помилка SQL при генерації рейтингу популярності: " + e.getMessage(), e);
             showAlert(Alert.AlertType.ERROR, "Помилка генерації рейтингу", "Не вдалося згенерувати рейтинг популярності: " + e.getMessage());
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOGGER.error( "Невідома помилка при генерації рейтингу популярності: " + e.getMessage(), e);
+            showAlert(Alert.AlertType.ERROR, "Помилка генерації рейтингу", "Не вдалося згенерувати рейтинг популярності через невідому помилку.");
         }
     }
 
     //генерування про витрати і прибуток
     @FXML
     private void handleGenerateExpenses() {
+        LOGGER.info("Спроба згенерувати звіт про витрати та прибуток.");
         LocalDate startDate = expensesStartDatePicker.getValue();
         LocalDate endDate = expensesEndDatePicker.getValue();
 
         if (startDate == null || endDate == null) {
             showAlert(Alert.AlertType.WARNING, "Відсутні дані", "Будь ласка, оберіть початкову та кінцеву дати.");
+            LOGGER.error("Генерація звіту про витрати скасована: відсутні дати.");
             return;
         }
+
+        LOGGER.info(String.format("Параметри звіту про витрати: Початок=%s, Кінець=%s", startDate, endDate));
 
         try {
             ReportingService.FinancialSummary summary = reportingService.getFinancialSummary(startDate, endDate);
@@ -219,9 +260,14 @@ public class ReportingController {
             maintenanceCostsLabel.setText(String.format("Витрати на утримання (Зарплати): %.2f грн", summary.getMaintenanceCosts()));
             totalExpensesLabel.setText(String.format("Загальні витрати: %.2f грн", summary.getTotalExpenses()));
             netProfitLabel.setText(String.format("Чистий прибуток: %.2f грн", summary.getNetProfit()));
+            LOGGER.info(String.format("Звіт про витрати та прибуток успішно згенеровано: Продажі=%.2f, Витрати на закупівлю=%.2f, Витрати на утримання=%.2f, Загальні витрати=%.2f, Чистий прибуток=%.2f",
+                    summary.getTotalSales(), summary.getProcurementCosts(), summary.getMaintenanceCosts(), summary.getTotalExpenses(), summary.getNetProfit()));
         } catch (SQLException e) {
+            LOGGER.error( "Помилка SQL при генерації звіту про витрати та прибуток: " + e.getMessage(), e);
             showAlert(Alert.AlertType.ERROR, "Помилка генерації звіту", "Не вдалося згенерувати звіт про витрати: " + e.getMessage());
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOGGER.error( "Невідома помилка при генерації звіту про витрати та прибуток: " + e.getMessage(), e);
+            showAlert(Alert.AlertType.ERROR, "Помилка генерації звіту", "Не вдалося згенерувати звіт про витрати через невідому помилку.");
         }
     }
 
@@ -234,5 +280,7 @@ public class ReportingController {
             alert.setContentText(message);
             alert.showAndWait();
         });
+        // Логуємо показ Alert для відстеження взаємодії з користувачем
+        LOGGER.error( String.format("Показано Alert користувачеві: Тип=%s, Заголовок='%s', Повідомлення='%s'", type, title, message));
     }
 }
