@@ -91,3 +91,19 @@
 2025-05-30 03:41:32 [JavaFX Application Thread] INFO  org.example.restaurant_management_system.controller.ReportingController - Пункти меню завантажено успішно. Кількість: 11
 2025-05-30 03:41:32 [JavaFX Application Thread] INFO  org.example.restaurant_management_system.controller.ReportingController - MenuController ініціалізовано успішно.
 2025-05-30 03:41:32 [JavaFX Application Thread] INFO  org.example.restaurant_management_system.controller.MainController - MenuView.fxml успішно відкрито.
+2025-05-30 20:57:52 [JavaFX Application Thread] INFO  org.example.restaurant_management_system.controller.LoginController - Спроба входу.
+2025-05-30 20:57:52 [JavaFX Application Thread] INFO  org.example.restaurant_management_system.controller.LoginController - Аутентифікація успішна для співробітника: Іван Менеджеров
+2025-05-30 20:57:52 [JavaFX Application Thread] INFO  org.example.restaurant_management_system.controller.MainController - Ініціалізовано MainController.
+2025-05-30 20:57:52 [JavaFX Application Thread] ERROR org.example.restaurant_management_system.controller.MainController - Тест критичної помилки для email!
+2025-05-30 20:57:54 [JavaFX Application Thread] INFO  org.example.restaurant_management_system.controller.MainController - Встановлено співробітника: Іван Менеджеров
+2025-05-30 20:57:54 [JavaFX Application Thread] INFO  org.example.restaurant_management_system.controller.MainController - Увімкнено всі кнопки для Менеджера.
+2025-05-30 20:57:54 [JavaFX Application Thread] INFO  org.example.restaurant_management_system.controller.LoginController - Відкрито головне вікно системи.
+2025-05-30 20:57:54 [JavaFX Application Thread] INFO  org.example.restaurant_management_system.controller.LoginController - Вікно входу закрито.
+2025-05-30 20:57:57 [JavaFX Application Thread] INFO  org.example.restaurant_management_system.controller.MainController - Спроба відкрити KitchenView.fxml для співробітника: Менеджер
+2025-05-30 20:57:57 [JavaFX Application Thread] INFO  org.example.restaurant_management_system.controller.KitchenController - Ініціалізація KitchenController.
+2025-05-30 20:57:57 [JavaFX Application Thread] INFO  org.example.restaurant_management_system.controller.KitchenController - Завантаження кухонних завдань.
+2025-05-30 20:57:57 [JavaFX Application Thread] INFO  org.example.restaurant_management_system.controller.KitchenController - Застосування фільтрів та сортування до кухонних завдань.
+2025-05-30 20:57:57 [JavaFX Application Thread] INFO  org.example.restaurant_management_system.controller.KitchenController - Фільтри та сортування успішно застосовано. Кількість завдань у таблиці: 5.
+2025-05-30 20:57:57 [JavaFX Application Thread] INFO  org.example.restaurant_management_system.controller.KitchenController - Кухонні завдання завантажено та застосовано фільтри/сортування.
+2025-05-30 20:57:57 [JavaFX Application Thread] INFO  org.example.restaurant_management_system.controller.KitchenController - Запущено таймлайн для оновлення таймерів.
+2025-05-30 20:57:58 [JavaFX Application Thread] INFO  org.example.restaurant_management_system.controller.MainController - KitchenView.fxml успішно відкрито.
