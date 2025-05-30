@@ -20,7 +20,7 @@ public class Order {
     private final StringProperty paymentMethod;
     private final DoubleProperty totalAmount;
 
-    //конструктори
+    //конструктор
     public Order() {
         this.id = new SimpleIntegerProperty();
         this.orderTime = new SimpleObjectProperty<>(LocalDateTime.now());

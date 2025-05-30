@@ -45,7 +45,7 @@ public class OrderService {
         return orderItem;
     }
 
-    private MenuItem getMenuItemById(int id) throws SQLException {
+    public MenuItem getMenuItemById(int id) throws SQLException {
         String query = "SELECT id, name, category_id, price, vegetarian, allergen, gluten_free FROM menu_items WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, id);
@@ -124,7 +124,7 @@ public class OrderService {
         return null;
     }
 
-    private Order saveOrUpdateOrderCore(Order order, double bonusDiscountToApply, boolean isNewOrder) throws SQLException {
+    public Order saveOrUpdateOrderCore(Order order, double bonusDiscountToApply, boolean isNewOrder) throws SQLException {
         double baseAmount = order.getTotalAmount(); // сума позицій з контролера
         double finalPayableAmount = baseAmount;
         Client clientInOrder = order.getClient(); // клієнт з контролера
@@ -157,8 +157,10 @@ public class OrderService {
         order.setTotalAmount(finalPayableAmount); // Фізагальна сума до сплати
 
         String sql = isNewOrder ?
-                "INSERT INTO orders (order_time, table_id, client_id, employee_id, payment_method, total_amount) VALUES (?, ?, ?, ?, ?, ?)" :
-                "UPDATE orders SET order_time = ?, table_id = ?, client_id = ?, employee_id = ?, payment_method = ?, total_amount = ? WHERE id = ?";
+                "INSERT INTO orders (order_time, table_id, client_id, employee_id, " +
+                        "payment_method, total_amount) VALUES (?, ?, ?, ?, ?, ?)" :
+                "UPDATE orders SET order_time = ?, table_id = ?, client_id = ?, " +
+                        "employee_id = ?, payment_method = ?, total_amount = ? WHERE id = ?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql, isNewOrder ? Statement.RETURN_GENERATED_KEYS : Statement.NO_GENERATED_KEYS)) {
             if (order.getOrderTime() == null && isNewOrder) order.setOrderTime(LocalDateTime.now());
@@ -227,7 +229,8 @@ public class OrderService {
 
     public List<Order> getAllOrders() throws SQLException {
         List<Order> orders = new ArrayList<>();
-        String query = "SELECT id, order_time, table_id, client_id, employee_id, payment_method, total_amount FROM orders ORDER BY order_time DESC";
+        String query = "SELECT id, order_time, table_id, client_id, employee_id," +
+                " payment_method, total_amount FROM orders ORDER BY order_time DESC";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) orders.add(createOrderFromResultSet(rs));
@@ -241,13 +244,15 @@ public class OrderService {
         String query = "SELECT id, table_number, capacity FROM tables";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) tables.add(new Table(rs.getInt("id"), rs.getString("table_number"), rs.getInt("capacity")));
+                while (rs.next()) tables.add(new Table(rs.getInt("id"),
+                        rs.getString("table_number"), rs.getInt("capacity")));
             }
         }
         return tables;
     }
     public Client addClient(Client client) throws SQLException {
-        String sql = "INSERT INTO clients (first_name, last_name, phone_number, email, loyalty_points) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO clients (first_name, last_name," +
+                " phone_number, email, loyalty_points) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setString(1, client.getFirstName());
             pstmt.setString(2, client.getLastName());
@@ -269,8 +274,10 @@ public class OrderService {
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    clients.add(new Client(rs.getInt("id"), rs.getString("first_name"), rs.getString("last_name"),
-                            rs.getString("phone_number"), rs.getString("email"), rs.getDouble("loyalty_points")));
+                    clients.add(new Client(rs.getInt("id"),
+                            rs.getString("first_name"), rs.getString("last_name"),
+                            rs.getString("phone_number"),
+                            rs.getString("email"), rs.getDouble("loyalty_points")));
                 }
             } // Закриваюча дужка для ResultSet
         } // Закриваюча дужка для PreparedStatement
@@ -278,9 +285,11 @@ public class OrderService {
     }
     public List<Employee> getAllEmployees(String positionName) throws SQLException {
         List<Employee> employees = new ArrayList<>();
-        StringBuilder queryBuilder = new StringBuilder("SELECT e.id, e.first_name, e.last_name, e.position_id, e.password FROM employees e");
+        StringBuilder queryBuilder = new StringBuilder("SELECT e.id, e.first_name," +
+                " e.last_name, e.position_id, e.password FROM employees e");
         if (positionName != null && !positionName.trim().isEmpty()) {
-            queryBuilder.append(" JOIN positions p ON e.position_id = p.id WHERE p.position_name = ?");
+            queryBuilder.append(" JOIN positions p ON e.position_id = p.id WHERE " +
+                    "p.position_name = ?");
         }
         try (PreparedStatement stmt = connection.prepareStatement(queryBuilder.toString())) {
             if (positionName != null && !positionName.trim().isEmpty()) stmt.setString(1, positionName);
@@ -357,7 +366,8 @@ public class OrderService {
         return orderItems;
     }
     public void updateOrderItem(OrderItem orderItem) throws SQLException {
-        String sql = "UPDATE order_items SET order_id = ?, menu_item_id = ?, quantity = ?, price_at_order = ? WHERE id = ?";
+        String sql = "UPDATE order_items SET order_id = ?, menu_item_id = ?," +
+                " quantity = ?, price_at_order = ? WHERE id = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setInt(1, orderItem.getOrderId());
             pstmt.setInt(2, orderItem.getMenuItemId());
@@ -375,7 +385,6 @@ public class OrderService {
         }
     }
     public void insertInitialTables(int numberOfTables) throws SQLException {
-        // ... (як було)
         String sql = "INSERT INTO tables (table_number, capacity) VALUES (?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             for (int i = 1; i <= numberOfTables; i++) {

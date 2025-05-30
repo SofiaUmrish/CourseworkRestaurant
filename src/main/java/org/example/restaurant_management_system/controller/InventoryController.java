@@ -21,7 +21,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Predicate;
 
 import org.apache.logging.log4j.LogManager;
@@ -32,7 +31,8 @@ public class InventoryController {
     private static final Logger LOGGER = LogManager.getLogger(InventoryController.class);
 
     // для управління СКЛАДОМ
-    @FXML private TableView<Ingredient> ingredientTable;
+    @FXML
+    TableView<Ingredient> ingredientTable;
     @FXML private TableColumn<Ingredient, String> nameColumn;
     @FXML private TableColumn<Ingredient, String> unitColumn;
     @FXML private TableColumn<Ingredient, LocalDate> expirationColumn;
@@ -64,8 +64,8 @@ public class InventoryController {
 
 
     private InventoryService inventoryService;
-    private ObservableList<Ingredient> masterIngredientsList = FXCollections.observableArrayList();
-    private FilteredList<Ingredient> filteredIngredients;
+    ObservableList<Ingredient> masterIngredientsList = FXCollections.observableArrayList();
+    FilteredList<Ingredient> filteredIngredients;
     private SortedList<Ingredient> sortedIngredients;
 
     private ObservableList<MenuItem> masterMenuItemsList = FXCollections.observableArrayList();
@@ -244,7 +244,7 @@ public class InventoryController {
     }
 
     // ФІЛЬТРАЦІЯ СКЛАДУ
-    private void applyStockFilter() {
+    void applyStockFilter() {
         String currentStockFilterType = filterChoiceBox.getValue();
         LOGGER.debug("Застосування фільтра складу: {}.", currentStockFilterType);
 
@@ -274,7 +274,7 @@ public class InventoryController {
     // КНОПКИ СКЛАДУ
 
     @FXML
-    private void handleAddNewIngredient() {
+    void handleAddNewIngredient() {
         String nameInput = inputNameField.getText().trim();
         String unitInput = inputUnitField.getText().trim();
         String qtyInput = inputQuantityField.getText().trim();
@@ -378,7 +378,7 @@ public class InventoryController {
 
     // КНОПКИ для списання продукту, перевірки зіпсованих продуктів і їх списання
     @FXML
-    private void handleUseIngredient() {
+    void handleUseIngredient() {
         Ingredient selectedIngredient = ingredientTable.getSelectionModel().getSelectedItem();
         String qtyInput = inputQuantityField.getText().trim();
         LOGGER.info("Спроба списати інгредієнт. Обраний інгредієнт: {}, Кількість: '{}'.",
@@ -442,7 +442,7 @@ public class InventoryController {
     }
 
     @FXML
-    private void handleCheckExpiration() {
+    public void handleCheckExpiration() {
         filterChoiceBox.setValue("Прострочені");
         messageLabel.setTextFill(Color.PINK);
         messageLabel.setText("Відфільтровано прострочені інгредієнти.");
@@ -450,7 +450,7 @@ public class InventoryController {
     }
 
     @FXML
-    private void handleDiscardSpoiled() {
+    void handleDiscardSpoiled() {
         LOGGER.info("Спроба списати прострочені інгредієнти.");
         try {
             List<Ingredient> expired = inventoryService.getExpiredIngredients();

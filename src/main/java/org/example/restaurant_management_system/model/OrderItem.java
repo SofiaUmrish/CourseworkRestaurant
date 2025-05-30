@@ -3,7 +3,7 @@ package org.example.restaurant_management_system.model;
 import javafx.beans.property.*;
 import java.util.Objects;
 
-public class OrderItem {
+public final class OrderItem {
     private final IntegerProperty id;
     private final IntegerProperty orderId;
     private final ObjectProperty<Order> order;
